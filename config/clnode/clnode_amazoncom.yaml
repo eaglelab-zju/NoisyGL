@@ -1,0 +1,32 @@
+model:
+  method: clnode
+  n_hidden: 64
+  n_layer: 2
+  act: F.relu
+  dropout: 0.5
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+  n_embedding: 64
+  alpha: 1
+  scheduler: geom
+  lambda: 0.5
+  T: 50
+  n_emb: 16
+
+training:
+  lr: 1e-3
+  weight_decay: 5e-4
+  n_pre_epochs: 500
+  n_epochs: 500
+  patience: 50
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

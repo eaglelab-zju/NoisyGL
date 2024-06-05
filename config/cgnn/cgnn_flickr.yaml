@@ -1,0 +1,27 @@
+model:
+  method: cgnn
+  n_hidden: 64
+  n_layer: 2
+  act: F.relu
+  dropout: 0.3
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+  noise_rate_init: 0.1
+
+training:
+  lr: 1e-2
+  weight_decay: 1e-2
+  n_epochs: 400
+  warmup_epochs: 380
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

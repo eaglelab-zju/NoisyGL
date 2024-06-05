@@ -1,0 +1,40 @@
+model:
+  method: rncgln
+  n_hidden: 64
+  n_layer: 2
+  act: F.relu
+  dropout: 0.5
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+  random_aug_feature: 0.4
+  Trans_layer_num: 2
+  trans_dim: 128
+  n_heads: 8
+  dropout_att: 0.4
+  tau: 1
+  order: 4
+  r1: 1
+  P_sel_onehot: 0.95
+  P_sel: 0.9
+  P_gra_sel: 0.9
+  IsGraNoise: true
+  SamSe: false
+
+
+training:
+  lr: 5e-4
+  weight_decay: 5e-4
+  n_epochs: 500
+  warmup_num: 100
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: false
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

@@ -1,0 +1,35 @@
+model:
+  method: nrgnn
+  n_hidden: 128
+  n_layer: 2
+  act: F.relu
+  dropout: 0.5
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+  edge_hidden: 64
+  t_small: 0.1
+  n_n: 50
+  n_p: 50
+  p_u: 0.8
+  alpha: 0.03
+  beta: 1
+
+training:
+  lr: 1e-3
+  weight_decay: 5e-4
+  n_epochs: 200
+  patience: ~
+  criterion: metric
+
+dataset:
+  feat_norm: true
+  sparse: true
+  add_loop: true
+  normalize: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

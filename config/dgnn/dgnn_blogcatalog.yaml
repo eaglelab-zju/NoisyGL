@@ -1,0 +1,23 @@
+model:
+  method: dgnn
+  n_hidden: 64
+  mlp_layers: 1
+  n_layer: 3
+  train_eps: false
+  dropout: 0.2
+
+training:
+  lr: 1e-3
+  weight_decay: 1e-3
+  n_pre_epochs: 300
+  n_epochs: 600
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

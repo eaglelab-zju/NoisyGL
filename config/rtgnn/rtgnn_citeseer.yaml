@@ -1,0 +1,34 @@
+model:
+  method: rtgnn
+  n_hidden: 128
+  n_layer: 2
+  act: F.relu
+  dropout: 0.5
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+  n_neg: 100
+  tau: 0.05
+  th: 0.95
+  edge_hidden: 64
+  co_lambda: 0.1
+  decay_w: 0.1
+  K: 100
+  alpha: 1
+
+
+training:
+  lr: 1e-2
+  weight_decay: 1e-2
+  n_epochs: 200
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

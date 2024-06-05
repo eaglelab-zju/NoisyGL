@@ -1,0 +1,22 @@
+model:
+  method: gin
+  n_hidden: 64
+  mlp_layers: 1
+  n_layer: 2
+  train_eps: true
+  dropout: 0.5
+
+training:
+  lr: 1e-2
+  weight_decay: 5e-4
+  n_epochs: 200
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

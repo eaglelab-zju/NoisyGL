@@ -1,0 +1,25 @@
+model:
+  method: backward
+  n_hidden: 64
+  n_layer: 2
+  act: F.relu
+  dropout: 0.5
+  norm_info: ~
+  input_layer: false
+  output_layer: false
+
+training:
+  lr: 1e-2
+  weight_decay: 5e-4
+  n_pre_epochs: 200
+  n_epochs: 200
+  patience: ~
+  criterion: metric
+
+dataset:
+  sparse: true
+
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false

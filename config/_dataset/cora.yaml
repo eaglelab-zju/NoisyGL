@@ -1,0 +1,20 @@
+split:
+  split_type: default
+  train_size: ~
+  val_size: ~
+  test_size: ~
+  train_percent: ~
+  val_percent: ~
+  test_percent: ~
+  train_examples_per_class: ~
+  val_examples_per_class: ~
+  test_examples_per_class: ~
+
+norm:
+  feat_norm: false
+  adj_norm: false
+
+modify:
+  add_self_loop: false
+  from_npz_largest_component: false
+
