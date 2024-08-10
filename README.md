@@ -10,7 +10,7 @@
 
 # NoisyGL
 
-Official code for [NoisyGL: A Comprehensive Benchmark for Graph Learning under Label Noise]. NoisyGL is a comprehensive benchmark for **Graph Neural Networks under label noise(GLN)**. 
+Official code for [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise]. NoisyGL is a comprehensive benchmark for **Graph Neural Networks under label noise(GLN)**. 
 GLN is a family of data-centric learning approaches designed to jointly optimize the graph structure and the corresponding Graph Neural Network (GNN) models, with a particular focus on performance in the presence of label noise. GLN has great potential in various real-world applications, including social network analysis, biological network analysis, recommendation systems, and more. By effectively handling label noise, GLN provides more robust and accurate graph data learning capabilities, significantly enhancing graph analysis tasks in complex data environments.
 
 ## Overview of the Benchmark
