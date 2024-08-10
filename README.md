@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/HazwRuHi/GNNwithLabelNoise-Benchmark/blob/master/img/logo.png" border="0" width=400px/>
+<img src="img/logo.png" border="0" width=400px/>
 
 </div>
 
@@ -16,7 +16,7 @@ GLN is a family of data-centric learning approaches designed to jointly optimize
 ## Overview of the Benchmark
 NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and GLN works and facilitate future GLN research.
 
-![timeline](https://github.com/HazwRuHi/GNNwithLabelNoise-Benchmark/blob/master/img/timeline.png)
+![timeline](img/timeline.png)
 
 ## Installation
 <!--
