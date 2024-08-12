@@ -47,21 +47,7 @@ def load_conf(path: str = None, method: str = None, dataset: str = None):
 
     conf = open(path, "r").read()
     conf = yaml.load(conf)
-
-    if nni.get_trial_id() != "STANDALONE":
-        par = nni.get_next_parameter()
-        for i, dic in conf.items():
-            if type(dic) == type(dict()):
-                for a, b in dic.items():
-                    for x, y in par.items():
-                        if x == a:
-                            conf[i][a] = y
-            for x, y in par.items():
-                if x == i:
-                    conf[i] = y
-
     conf = argparse.Namespace(**conf)
-
     return conf
 
 

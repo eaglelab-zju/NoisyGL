@@ -1,7 +1,8 @@
 import argparse
 
 import numpy as np
-
+import nni
+import torch
 from utils.dataloader import Dataset
 from utils.tools import load_conf, setup_seed, get_neighbors
 from utils.labelnoise import label_process
@@ -24,45 +25,19 @@ from predictor.APL_Predictor import apl_Predictor
 from predictor.SCE_Predictor import sce_Predictor
 from predictor.Forward_Predictor import forward_Predictor
 from predictor.Backward_Predictor import backward_Predictor
-import torch
 
 
-def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, debug=True):
-    setup_seed(seed)
-    model_conf = load_conf(None, method_name, dataset.name)
-    dataset.noisy_label, modified_mask = label_process(labels=dataset.labels, n_classes=dataset.n_classes,
-                                                       noise_type=noise_type, noise_rate=noise_rate,
-                                                       random_seed=seed, debug=debug)
-    incorrect_labeled_train_mask = dataset.train_masks[np.in1d(dataset.train_masks, modified_mask)]
-    correct_labeled_train_mask = dataset.train_masks[~ np.in1d(dataset.train_masks, modified_mask)]
-    supervised_mask = get_neighbors(dataset.adj, dataset.train_masks)
-    incorrect_supervised_mask = get_neighbors(dataset.adj, incorrect_labeled_train_mask)
-    correct_supervised_mask = get_neighbors(dataset.adj, correct_labeled_train_mask)
-
-    unlabeled_incorrect_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, incorrect_supervised_mask)]
-    unlabeled_correct_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, correct_supervised_mask)]
-    unlabeled_unsupervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, supervised_mask)]
-
-    model_conf.model['n_feat'] = dataset.dim_feats
-    model_conf.model['n_classes'] = dataset.n_classes
-    model_conf.training['debug'] = debug
-    predictor = eval(method_name + '_Predictor')(model_conf, dataset, device)
-    result = predictor.train()
-    _, correct_labeled_train_accuracy = predictor.test(correct_labeled_train_mask)
-    _, incorrect_labeled_train_accuracy = predictor.test(incorrect_labeled_train_mask)
-    _, incorrect_labeled_mislead_train_accuracy = predictor.evaluate(predictor.noisy_label[incorrect_labeled_train_mask], incorrect_labeled_train_mask)
-    # incorrect_labeled_mislead_train_accuracy = 0
-    _, unlabeled_unsupervised_accuracy = predictor.test(unlabeled_unsupervised_mask)
-    _, unlabeled_correct_supervised_accuracy = predictor.test(unlabeled_correct_supervised_mask)
-    _, unlabeled_incorrect_supervised_accuracy = predictor.test(unlabeled_incorrect_supervised_mask)
-    result['correct_labeled_train_accuracy'] = correct_labeled_train_accuracy
-    result['incorrect_labeled_train_accuracy'] = incorrect_labeled_train_accuracy
-    result['incorrect_labeled_mislead_train_accuracy'] = incorrect_labeled_mislead_train_accuracy
-    result['unlabeled_correct_supervised_accuracy'] = unlabeled_correct_supervised_accuracy
-    result['unlabeled_unsupervised_accuracy'] = unlabeled_unsupervised_accuracy
-    result['unlabeled_incorrect_supervised_accuracy'] = unlabeled_incorrect_supervised_accuracy
-    result['total_time'] = predictor.total_time
-    return result
+def merge_params(model_conf):
+    turner_params = nni.get_next_parameter()
+    print(turner_params)
+    for item in turner_params.keys():
+        print(item)
+        if item in ['lr', 'weight_decay']:
+            model_conf.training[item] = turner_params[item]
+        else:
+            model_conf.model[item] = turner_params[item]
+    print(model_conf)
+    return model_conf
 
 
 parser = argparse.ArgumentParser()
@@ -89,6 +64,8 @@ parser.add_argument('--seed', type=int,
                     help="Random Seed")
 args = parser.parse_args()
 
+
+
 if __name__ == '__main__':
     print(args)
     data_path = './data/'
@@ -110,6 +87,15 @@ if __name__ == '__main__':
                    device=args.device,
                    split_type=data_conf.split['split_type'])
     print('Current device: ' + str(data.feats.device))
-    result = run_single_exp(data, args.method, noise_type=args.noise_type,
-                            noise_rate=args.noise_rate,
-                            seed=args.seed, device=args.device, debug=True)
+    model_conf = load_conf(None, args.method, data.name)
+    if nni.get_trial_id() != "STANDALONE":
+        model_conf = merge_params(model_conf)
+    data.noisy_label, modified_mask = label_process(labels=data.labels, n_classes=data.n_classes,
+                                                    noise_type=args.noise_type, noise_rate=args.noise_rate,
+                                                    random_seed=args.seed, debug=True)
+    model_conf.model['n_feat'] = data.dim_feats
+    model_conf.model['n_classes'] = data.n_classes
+    model_conf.training['debug'] = True
+    predictor = eval(args.method + '_Predictor')(model_conf, data, args.device)
+    result = predictor.train()
+    nni.report_final_result(float(result['test']))

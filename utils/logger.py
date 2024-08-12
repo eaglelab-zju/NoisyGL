@@ -1,4 +1,6 @@
 import torch
+import nni
+
 
 class Logger(object):
     """
@@ -77,6 +79,9 @@ class Logger(object):
             print(f'   Final Test: {r.mean():.2f} ± {r.std():.2f}')
             total_results["test_accuracy"] = {"acc": r.mean(), "std": r.std()}
 
+            if nni.get_trial_id()!="STANDALONE":
+                nni.report_final_result(float(r.mean()))
+
             r = best_result[:, 3]
             print(f'Correct Labeled Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results["correct_labeled_train_accuracy"] = {"acc": r.mean(), "std": r.std()}
@@ -104,9 +109,5 @@ class Logger(object):
             r = best_result[:, 9] * 0.01
             print(f'Time: {r.mean():.2f} ± {r.std():.2f}')
             total_results['total_time'] = {"mean": r.mean(), "std": r.std()}
-            
-            import nni
-            if nni.get_trial_id()!="STANDALONE":
-                nni.report_final_result(float(r.mean()))
-            
+
             return total_results

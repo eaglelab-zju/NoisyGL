@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 from utils.recorder import Recorder
 from copy import deepcopy
+import nni
 
 
 class Predictor:
@@ -88,6 +89,8 @@ class Predictor:
                 break
 
             if self.conf.training['debug']:
+                loss_test, acc_test = self.test(self.test_mask)
+                nni.report_intermediate_result(acc_test)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
