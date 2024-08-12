@@ -1,6 +1,6 @@
 from nni.experiment import Experiment
+from utils.tools import load_conf, save_conf
 import argparse
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str,
@@ -24,21 +24,53 @@ parser.add_argument('--device', type=str,
 parser.add_argument('--seed', type=int,
                     default=3000,
                     help="Random Seed")
+parser.add_argument('--max_trial_number', type=int,
+                    default=20,
+                    help="Max trial number for hyperparameter optimization")
+parser.add_argument('--trial_concurrency', type=int,
+                    default=4,
+                    help="How many trials running at the same time")
+parser.add_argument('--port', type=int,
+                    default=8081,
+                    help="The port on which NNI manager will run")
+parser.add_argument('--update_config', type=bool,
+                    default=True,
+                    help="Update config file with optimized parameters")
 args = parser.parse_args()
 
 
 if __name__ == '__main__':
     experiment = Experiment('local')
     command = 'python single_exp.py'
-    for k,v in sorted(vars(args).items()):
-        command += ' --' + k + '=' + str(v)
+    for k, v in sorted(vars(args).items()):
+        if k in ['data', 'method', 'noise_type', 'noise_rate', 'device', 'seed']:
+            command += ' --' + k + '=' + str(v)
     experiment.config.trial_command = command
     experiment.config.trial_code_directory = '.'
-    experiment.config.search_space_file = './config/_search_space/gcn.json'
+    experiment.config.search_space_file = './config/_search_space/' + args.method + '.json'
     experiment.config.tuner.name = 'TPE'
+    experiment.config.assessor.name = 'Curvefitting'
     experiment.config.tuner.class_args['optimize_mode'] = 'maximize'
-    experiment.config.max_trial_number = 4
-    experiment.config.trial_concurrency = 2
-    experiment.run(8081, debug=True)
-    input('Press enter to quit')
+    experiment.config.max_trial_number = args.max_trial_number
+    experiment.config.trial_concurrency = args.trial_concurrency
+    experiment.run(args.port, debug=True)
+    result = experiment.export_data()
+    max_acc = 0
+    opt_params = {}
+    for item in result:
+        if item.value > max_acc:
+            max_acc = item.value
+            opt_params = item.parameter
+    print("optimized parameters")
+    print(opt_params)
+
+    if args.update_config:
+        model_conf = load_conf(None, args.method, args.data)
+        for item in opt_params.keys():
+            if item in ['lr', 'weight_decay']:
+                model_conf.training[item] = opt_params[item]
+            else:
+                model_conf.model[item] = opt_params[item]
+        model_conf = vars(model_conf)
+        save_conf(None, args.method, args.data, model_conf)
     experiment.stop()

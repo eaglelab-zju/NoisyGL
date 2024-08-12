@@ -4,7 +4,6 @@ import random
 import argparse
 import os
 import ruamel.yaml as yaml
-import nni
 import warnings
 import scipy.sparse as sp
 import matplotlib.pyplot as plt
@@ -37,11 +36,7 @@ def load_conf(path: str = None, method: str = None, dataset: str = None):
         raise KeyError
     if path == None:
         dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
-        if method in ["link", "lpa"]:
-            path = os.path.join(dir, method, method + ".yaml")
-        else:
-            path = os.path.join(dir, method, method + '_' + dataset + ".yaml")
-
+        path = os.path.join(dir, method, method + '_' + dataset + ".yaml")
         if os.path.exists(path) == False:
             raise KeyError("The method configuration file is not provided.")
 
@@ -50,6 +45,39 @@ def load_conf(path: str = None, method: str = None, dataset: str = None):
     conf = argparse.Namespace(**conf)
     return conf
 
+
+def save_conf(path: str = None, method: str = None, dataset: str = None, conf: any = None):
+    '''
+    Function to load config file.
+
+    Parameters
+    ----------
+    path : str
+        Path to load config file. Load default configuration if set to `None`.
+    method : str
+        Name of the used mathod. Necessary if ``path`` is set to `None`.
+    dataset : str
+        Name of the corresponding dataset. Necessary if ``path`` is set to `None`.
+    conf : argparse.Namespace
+        The config file to save.
+
+    Returns
+    -------
+        None
+    '''
+
+    if path == None and method == None:
+        raise KeyError
+    if path == None and dataset == None:
+        raise KeyError
+    if path == None:
+        dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config")
+        path = os.path.join(dir, method, method + '_' + dataset + ".yaml")
+
+    with open(path, 'w') as f:
+        yaml.safe_dump(conf, f, default_flow_style=False)
+    print('config file ' + path + ' updated')
+    return None
 
 def get_npz_data(file_name, self_loop):
     adj, features, labels = load_npz(file_name)
