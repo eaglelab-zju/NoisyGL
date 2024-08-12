@@ -79,35 +79,32 @@ class Logger(object):
             print(f'   Final Test: {r.mean():.2f} ± {r.std():.2f}')
             total_results["test_accuracy"] = {"acc": r.mean(), "std": r.std()}
 
-            if nni.get_trial_id()!="STANDALONE":
-                nni.report_final_result(float(r.mean()))
-
             r = best_result[:, 3]
-            print(f'Correct Labeled Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Correct Labeled Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results["correct_labeled_train_accuracy"] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 4]
-            print(f'Incorrect Labeled Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Incorrect Labeled Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results['incorrect_labeled_train_accuracy'] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 5]
-            print(f'Incorrect Labeled Mislead Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Incorrect Labeled Mislead Train Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results['incorrect_labeled_mislead_train_accuracy'] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 6]
-            print(f'Unlabeled Correct Supervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Unlabeled Correct Supervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results['unlabeled_correct_supervised_accuracy'] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 7]
-            print(f'Unlabeled Unsupervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Unlabeled Unsupervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results['unlabeled_unsupervised_accuracy'] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 8]
-            print(f'Unlabeled Incorrect Supervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Unlabeled Incorrect Supervised Accuracy: {r.mean():.2f} ± {r.std():.2f}')
             total_results['unlabeled_incorrect_supervised_accuracy'] = {"acc": r.mean(), "std": r.std()}
 
             r = best_result[:, 9] * 0.01
-            print(f'Time: {r.mean():.2f} ± {r.std():.2f}')
+            # print(f'Time: {r.mean():.2f} ± {r.std():.2f}')
             total_results['total_time'] = {"mean": r.mean(), "std": r.std()}
 
             return total_results

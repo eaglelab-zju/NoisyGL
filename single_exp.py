@@ -98,4 +98,5 @@ if __name__ == '__main__':
     model_conf.training['debug'] = True
     predictor = eval(args.method + '_Predictor')(model_conf, data, args.device)
     result = predictor.train()
-    nni.report_final_result(float(result['test']))
+    if nni.get_trial_id() != "STANDALONE":
+        nni.report_final_result(float(result['test']))
