@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     data_path = './data/'
     log_path = './log/' + str(time.strftime("%Y-%m-%d_%H-%M-%S")) + '.txt'
-    tex_path = './log/(latex)' + str(time.strftime("%Y-%m-%d_%H-%M-%S")) + '.txt'
+    tex_path = './log/' + str(time.strftime("%Y-%m-%d_%H-%M-%S")) + '.tex'
     method_list = args.methods
     data_list = args.datasets
     noise_list = []
