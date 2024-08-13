@@ -137,9 +137,9 @@ if __name__ == '__main__':
                 for run in range(args.runs):
                     # setup different random seed for each runs
                     setup_seed(args.seed + run)
-                    result, _ = run_single_exp(data, method_name, noise_type=noise_type, noise_rate=noise_rate,
-                                               seed=args.seed + run, device=args.device, debug=False)
-                    logger.add_result(run, result)
+                    simple_result, total_results = run_single_exp(data, method_name, noise_type=noise_type,
+                                                                  noise_rate=noise_rate,
+                                                                  seed=args.seed + run, device=args.device, debug=False)
+                    logger.add_result(run, total_results)
                 total_results = logger.get_statistics()
-                test_acc, test_acc_std = total_results['test_accuracy']['acc'], total_results['test_accuracy']['std']
-                result_recorder.dump_record(method_name, data_name, noise_type, noise_rate, test_acc, test_acc_std)
+                result_recorder.dump_record(method_name, data_name, noise_type, noise_rate, total_results)

@@ -117,37 +117,52 @@ class ResultLogger(object):
                        [f'{int(noise_list[i][0] * 100):2d} % {noise_list[i][1]}' for i in range(len(noise_list))]]
         excel_index = pd.MultiIndex.from_product(excel_index, names=["Dataset", "Noise type"])
         self.tex_result_tabel = pd.DataFrame(index=tex_index, columns=columns)
-        self.excel_result_tabel_main = pd.DataFrame(index=excel_index, columns=columns)
-        self.excel_result_tabel_ave = pd.DataFrame(index=excel_index, columns=columns)
-        self.excel_result_tabel_std = pd.DataFrame(index=excel_index, columns=columns)
+        self.excel_result_tabel_test_acc_main = pd.DataFrame(index=excel_index, columns=columns)
+        self.excel_result_tabel_test_acc_ave = pd.DataFrame(index=excel_index, columns=columns)
+        self.excel_result_tabel_test_acc_std = pd.DataFrame(index=excel_index, columns=columns)
 
-    def dump_record(self, method_name, data_name, noise_type, noise_rate, test_acc, test_acc_std):
+    def dump_record(self, method_name, data_name, noise_type, noise_rate, total_results):
+        test_acc_ave, test_acc_std = total_results['test_accuracy']['acc'], total_results['test_accuracy']['std']
+        aclt_ave, aclt_std = (total_results["correct_labeled_train_accuracy"]['acc'],
+                              total_results["correct_labeled_train_accuracy"]['std'])
+        ailt_ave, ailt_std = (total_results["incorrect_labeled_train_accuracy"]['acc'],
+                              total_results["incorrect_labeled_train_accuracy"]['std'])
+        aucs_ave, aucs_std = (total_results['unlabeled_correct_supervised_accuracy']['acc'],
+                              total_results['unlabeled_correct_supervised_accuracy']['std'])
+        auu_ave, auu_std = (total_results['unlabeled_unsupervised_accuracy']['acc'],
+                              total_results['unlabeled_unsupervised_accuracy']['std'])
+        auis_ave, auis_std = (total_results['unlabeled_incorrect_supervised_accuracy']['acc'],
+                              total_results['unlabeled_incorrect_supervised_accuracy']['std'])
+        time_ave, time_std = (total_results['total_time']['mean'],
+                              total_results['total_time']['std'])
+
         # print results in terminal
-        message = f'| data: {data_name:12s} | method: {method_name:12s}' + f' | noise type: {noise_type:12s} | noise rate: {noise_rate:03.2f} | test acc: {test_acc:03.2f} ± {test_acc_std:03.2f} |'
+        message = f'| data: {data_name:12s} | method: {method_name:12s}' + f' | noise type: {noise_type:12s} | noise rate: {noise_rate:03.2f} | test acc: {test_acc_ave:03.2f} ± {test_acc_std:03.2f} |'
         print(message)
         # dump record
         with open(self.log_path, 'a') as f:
             # record results in plain text
-            message = f'| data: {data_name:12s} | method: {method_name:12s}' + f' | noise type: {noise_type:12s} | noise rate: {noise_rate:03.2f} | test acc: {test_acc:03.2f} ± {test_acc_std:03.2f} |\n'
+            message = f'| data: {data_name:12s} | method: {method_name:12s}' + f' | noise type: {noise_type:12s} | noise rate: {noise_rate:03.2f} | test acc: {test_acc_ave:03.2f} ± {test_acc_std:03.2f} |\n'
             f.write(message)
         with open(self.tex_path, 'w') as f:
-            # record results in tex
+            # record results in tex file
             self.tex_result_tabel.loc[data_name, f'$ {int(noise_rate * 100):2d} \\% $ {noise_type}'][
-                method_name] = f'$ {test_acc:03.2f} \\pm {test_acc_std:03.2f} $'
+                method_name] = f'$ {test_acc_ave:03.2f} \\pm {test_acc_std:03.2f} $'
             message = self.tex_result_tabel.to_latex(na_rep='0', bold_rows=True, caption=f'RESULTS FOR {self.runs:d} RUNS')
             f.write(message)
         with pd.ExcelWriter(self.excel_path, engine='xlsxwriter') as writer:
-            self.excel_result_tabel_main.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
-                method_name] = f'{test_acc:03.2f} ± {test_acc_std:03.2f}'
-            self.excel_result_tabel_main.to_excel(excel_writer=writer, sheet_name='main', na_rep='0')
+            # record results in excel file
+            self.excel_result_tabel_test_acc_main.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
+                method_name] = f'{test_acc_ave:03.2f} ± {test_acc_std:03.2f}'
+            self.excel_result_tabel_test_acc_main.to_excel(excel_writer=writer, sheet_name='main', na_rep='0')
 
-            self.excel_result_tabel_ave.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
-                method_name] = f'{test_acc:03.2f}'
-            self.excel_result_tabel_ave.to_excel(excel_writer=writer, sheet_name='ave', na_rep='0')
+            self.excel_result_tabel_test_acc_ave.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
+                method_name] = f'{test_acc_ave:03.2f}'
+            self.excel_result_tabel_test_acc_ave.to_excel(excel_writer=writer, sheet_name='ave', na_rep='0')
 
-            self.excel_result_tabel_std.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
+            self.excel_result_tabel_test_acc_std.loc[data_name, f'{int(noise_rate * 100):2d} % {noise_type}'][
                 method_name] = f'{test_acc_std:03.2f}'
-            self.excel_result_tabel_std.to_excel(excel_writer=writer, sheet_name='std', na_rep='0')
+            self.excel_result_tabel_test_acc_std.to_excel(excel_writer=writer, sheet_name='std', na_rep='0')
 
 
 class SingleExpRecorder:
