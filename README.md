@@ -33,14 +33,14 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 
 **Installing with Conda**
 ``` bash
-conda create -n GNNwithLabelNoise python=3.9
-conda activate GNNwithLabelNoise
+conda create -n NoisyGL python=3.11
+conda activate NoisyGL
 pip install -r requirements.txt
 ```
 
 
 #### Required Dependencies:
-- Python 3.9+
+- Python 3.11+
 - pandas
 - scipy
 - scikit-learn
@@ -50,13 +50,22 @@ pip install -r requirements.txt
 - pyro-ppl
 - numba
 - nni
+- matplotlib
 
 ## Quick Start
 Run the code with the following example commands:<br>
-###  Uniform Noise with noise rate 0.1 on Cora with GCN
+####  Uniform Noise with noise rate 0.1 on Cora with GCN, 10 runs.
 ``` bash
 python total_exp.py --runs 10 --methods gcn --datasets cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --seed 3000 --ignore_warnings True
 ```
+
+####  Automatically optimize GCN hyperparameters on Cora dataset, then overwrite the original config file.
+``` bash
+python hyperparam_opt.py --method gcn --data cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --max_trial_number 20 --trial_concurrency 4 --port 8081 --update_config True
+```
+By running command above, a NNI manager will run on http://localhost:8081. 
+After all HPO trials finished, a new config file with optimized hyperparameters will overwrite the original one at "./config/gcn/gcn_cora.yaml" .
+
 
 **method** ： 
 `gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`
