@@ -61,6 +61,8 @@ if __name__ == '__main__':
         if item.value > max_acc:
             max_acc = item.value
             opt_params = item.parameter
+    print("highest acc")
+    print(max_acc)
     print("optimized parameters")
     print(opt_params)
 
