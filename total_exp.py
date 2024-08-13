@@ -6,7 +6,7 @@ import numpy as np
 from utils.labelnoise import label_process
 from utils.dataloader import Dataset
 from utils.tools import load_conf, setup_seed, get_neighbors
-from utils.logger import Logger
+from utils.logger import Logger, ResultRecorder
 from predictor.NRGNN_Predictor import nrgnn_Predictor
 from predictor.CP_Predictor import cp_Predictor
 from predictor.Smodel_Predictor import smodel_Predictor
@@ -39,7 +39,6 @@ def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, d
     supervised_mask = get_neighbors(dataset.adj, dataset.train_masks)
     incorrect_supervised_mask = get_neighbors(dataset.adj, incorrect_labeled_train_mask)
     correct_supervised_mask = get_neighbors(dataset.adj, correct_labeled_train_mask)
-
     unlabeled_incorrect_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, incorrect_supervised_mask)]
     unlabeled_correct_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, correct_supervised_mask)]
     unlabeled_unsupervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, supervised_mask)]
@@ -48,27 +47,30 @@ def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, d
     model_conf.model['n_classes'] = dataset.n_classes
     model_conf.training['debug'] = debug
     predictor = eval(method_name + '_Predictor')(model_conf, dataset, device)
-    result = predictor.train()
+    original_result = predictor.train()
+    extended_result = original_result
     _, correct_labeled_train_accuracy = predictor.test(correct_labeled_train_mask)
     _, incorrect_labeled_train_accuracy = predictor.test(incorrect_labeled_train_mask)
-    _, incorrect_labeled_mislead_train_accuracy = predictor.evaluate(predictor.noisy_label[incorrect_labeled_train_mask], incorrect_labeled_train_mask)
-    incorrect_labeled_mislead_train_accuracy = 0
+    _, incorrect_labeled_mislead_train_accuracy = predictor.evaluate(
+        predictor.noisy_label[incorrect_labeled_train_mask], incorrect_labeled_train_mask)
+    # incorrect_labeled_mislead_train_accuracy = 0
     _, unlabeled_unsupervised_accuracy = predictor.test(unlabeled_unsupervised_mask)
     _, unlabeled_correct_supervised_accuracy = predictor.test(unlabeled_correct_supervised_mask)
     _, unlabeled_incorrect_supervised_accuracy = predictor.test(unlabeled_incorrect_supervised_mask)
-    result['correct_labeled_train_accuracy'] = correct_labeled_train_accuracy
-    result['incorrect_labeled_train_accuracy'] = incorrect_labeled_train_accuracy
-    result['incorrect_labeled_mislead_train_accuracy'] = incorrect_labeled_mislead_train_accuracy
-    result['unlabeled_correct_supervised_accuracy'] = unlabeled_correct_supervised_accuracy
-    result['unlabeled_unsupervised_accuracy'] = unlabeled_unsupervised_accuracy
-    result['unlabeled_incorrect_supervised_accuracy'] = unlabeled_incorrect_supervised_accuracy
-    result['total_time'] = predictor.total_time
-    return result
+    extended_result['correct_labeled_train_accuracy'] = correct_labeled_train_accuracy
+    extended_result['incorrect_labeled_train_accuracy'] = incorrect_labeled_train_accuracy
+    extended_result['incorrect_labeled_mislead_train_accuracy'] = incorrect_labeled_mislead_train_accuracy
+    extended_result['unlabeled_correct_supervised_accuracy'] = unlabeled_correct_supervised_accuracy
+    extended_result['unlabeled_unsupervised_accuracy'] = unlabeled_unsupervised_accuracy
+    extended_result['unlabeled_incorrect_supervised_accuracy'] = unlabeled_incorrect_supervised_accuracy
+    extended_result['total_time'] = predictor.total_time
+
+    return original_result, extended_result
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--runs', type=int,
-                    default=10,
+                    default=2,
                     help="Number of experiments for each combination of method and data")
 parser.add_argument('--methods', type=str, nargs='+',
                     default=['gcn', 'smodel', 'coteaching', 'jocor', 'apl', 'sce', 'forward', 'backward'],
@@ -80,42 +82,37 @@ parser.add_argument('--datasets', type=str, nargs='+',
                     choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho', 'dblp', 'blogcatalog', 'flickr'],
                     help='Select datasets')
 parser.add_argument('--noise_type', type=str, nargs='+',
-                    default=['uniform'],
+                    default=['clean', 'pair', 'uniform'],
                     choices=['clean', 'pair', 'uniform', 'asymmetric'], help='Noise type')
 parser.add_argument('--noise_rate', type=float, nargs='+',
-                    default=[0.3],
+                    default=[0.1, 0.2, 0.3, 0.4, 0.5],
                     help='Noise rate')
 parser.add_argument('--device', type=str,
                     default='cuda:0',
                     help='Device')
 parser.add_argument('--seed', type=int,
                     default=3000, help="Random Seed")
-parser.add_argument('--ignore_warnings', type=bool,
-                    default=True, help='Whether to ignore warnings')
 args = parser.parse_args()
 
 if __name__ == '__main__':
     print(args)
-    if args.ignore_warnings:
-        warnings.filterwarnings("ignore")
-
+    warnings.filterwarnings("ignore")
     data_path = './data/'
-    log_path = './log/' + str(time.strftime("%Y-%m-%d_%H-%M-%S")) + '.txt'
-    tex_path = './log/' + str(time.strftime("%Y-%m-%d_%H-%M-%S")) + '.tex'
     method_list = args.methods
     data_list = args.datasets
+    noise_type_list = args.noise_type
+    noise_rate_list = args.noise_rate
+
     noise_list = []
-    for noise_type in args.noise_type:
+    for noise_type in noise_type_list:
         if noise_type == 'clean':
             # noise_rate is not available for clean data
             noise_list.append([0.0, noise_type])
             continue
-        for noise_rate in args.noise_rate:
+        for noise_rate in noise_rate_list:
             noise_list.append([noise_rate, noise_type])
-    columns = method_list
-    index = [data_list, [f' $ {int(noise_list[i][0] * 100):2d} \% $ {noise_list[i][1]}' for i in range(len(noise_list))]]
-    index = pd.MultiIndex.from_product(index, names=["Dataset", "Noise type"])
-    result_record = pd.DataFrame(index=index, columns=columns)
+
+    result_recorder = ResultRecorder(method_list, data_list, noise_list, args.runs)
     for noise_rate, noise_type in noise_list:
         for data_name in data_list:
             data_conf = load_conf('./config/_dataset/' + data_name + '.yaml')
@@ -140,25 +137,9 @@ if __name__ == '__main__':
                 for run in range(args.runs):
                     # setup different random seed for each runs
                     setup_seed(args.seed + run)
-                    result = run_single_exp(data, method_name, noise_type=noise_type, noise_rate=noise_rate,
-                                            seed=args.seed + run, device=args.device, debug=False)
+                    result, _ = run_single_exp(data, method_name, noise_type=noise_type, noise_rate=noise_rate,
+                                               seed=args.seed + run, device=args.device, debug=False)
                     logger.add_result(run, result)
-
-                # print results in terminal
-                print('-------------------------------------------------')
-                print(
-                    f'| data: {data.name} | method: {method_name}' + f' | noise type: {noise_type} | noise rate: {noise_rate:.2f} |')
-                total_results = logger.print_statistics()
+                total_results = logger.get_statistics()
                 test_acc, test_acc_std = total_results['test_accuracy']['acc'], total_results['test_accuracy']['std']
-                print('-------------------------------------------------')
-
-                with open(log_path, 'a') as f:
-                    # record results by lines
-                    message = f'| data: {data.name:12s} | method: {method_name:12s}' + f' | noise type: {noise_type:12s} | noise rate: {noise_rate:03.2f} | test acc: {test_acc:03.2f} ± {test_acc_std:03.2f} |\n'
-                    f.write(message)
-                with open(tex_path, 'w') as f:
-                    # record results in latex format
-                    result_record.loc[data_name, f' $ {int(noise_rate * 100):2d} \% $ {noise_type}'][method_name] = f'$ {test_acc:03.2f} \\pm {test_acc_std:03.2f} $'
-                    message = result_record.to_latex(na_rep='0', bold_rows=True, caption=f'RESULTS FOR {args.runs:d} RUNS')
-                    f.write(message)
-
+                result_recorder.dump_record(method_name, data_name, noise_type, noise_rate, test_acc, test_acc_std)

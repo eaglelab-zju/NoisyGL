@@ -10,7 +10,7 @@
 
 # NoisyGL
 
-Official code for [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise]. NoisyGL is a comprehensive benchmark for **Graph Neural Networks under label noise(GLN)**. 
+Official code for [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://arxiv.org/abs/2406.04299) . NoisyGL is a comprehensive benchmark for **Graph Neural Networks under label noise(GLN)**. 
 GLN is a family of data-centric learning approaches designed to jointly optimize the graph structure and the corresponding Graph Neural Network (GNN) models, with a particular focus on performance in the presence of label noise. GLN has great potential in various real-world applications, including social network analysis, biological network analysis, recommendation systems, and more. By effectively handling label noise, GLN provides more robust and accurate graph data learning capabilities, significantly enhancing graph analysis tasks in complex data environments.
 
 ## Overview of the Benchmark
@@ -24,7 +24,7 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 [PyTorch Geometric, PyTorch Sparse](https://data.pyg.org/whl/)
 [DEEP GRAPH LIBRARY (DGL)](https://data.dgl.ai/wheels/repo.html)
 -->
-**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse) and [DEEP GRAPH LIBRARY (DGL)](https://www.dgl.ai/pages/start.html). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
+**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse), [PyTorch Cluster](https://github.com/rusty1s/pytorch_cluster) and [DEEP GRAPH LIBRARY (DGL)](https://www.dgl.ai/pages/start.html). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
 
 ## Required Dependencies:
 - Python 3.11+
@@ -41,11 +41,12 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 - nni
 - matplotlib
 - numpy
+- xlsxwriter
 
 ## Quick Start
 ###  Run comprehensive benchmark.
 ``` bash
-python total_exp.py --runs 10 --methods gcn gin --datasets cora citeseer pubmed --noise_type clean uniform pair --noise_rate 0.1 0.2 --device cuda:0 --seed 3000 --ignore_warnings True
+python total_exp.py --runs 10 --methods gcn gin --datasets cora citeseer pubmed --noise_type clean uniform pair --noise_rate 0.1 0.2 --device cuda:0 --seed 3000
 ```
 By running the command above, two methods 'gcn' and 'gin' will be tested 
 on three datasets 'cora', 'citeseer', and 'pubmed' under different types and rates of label noise.
@@ -109,10 +110,8 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 }
 ```
 
-
-
 ## Reference
-#### LLN:
+### LLN:
 | **ID** | **Paper**                                                                                                                | **Method**  | **Conference** |
 |--------|--------------------------------------------------------------------------------------------------------------------------|:-----------:|:--------------:|
 | 1      | [Training deep neural-networks using a noise adaptation layer](https://openreview.net/pdf?id=H12GRgcxg)                  |   S-model   |   ICLR 2017    |
@@ -123,7 +122,7 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 | 6      | [Combating Noisy Labels by Agreement: A Joint Training Method with Co-Regularization](https://arxiv.org/pdf/2003.02752) |    JoCoR    |   CVPR 2020    |
 | 7      | [Normalized Loss Functions for Deep Learning with Noisy Labels](https://proceedings.mlr.press/v119/ma20c/ma20c-supp.pdf) |     APL     |   PMLR 2020    |
 
-#### GLN:
+### GLN:
 | **ID** | **Paper** | **Method** | **Conference** |
 |--------|---------|:----------:|:--------------:|
 | 1      | [Learning Graph Neural Networks with Noisy Labels](https://arxiv.org/abs/1905.01591)      |   D-GNN    |   ICLR 2019    |

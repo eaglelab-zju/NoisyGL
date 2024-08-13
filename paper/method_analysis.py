@@ -151,7 +151,7 @@ if __name__ == '__main__':
             print('-------------------------------------------------')
             print(
                 f'| data: {data.name} | method: {method_name}' + f' | noise type: {noise_type} | noise rate: {noise_rate:.2f} |')
-            total_results = logger.print_statistics()
+            total_results = logger.get_statistics()
             print('-------------------------------------------------')
 
             with (open(tex_path, 'w') as f):
