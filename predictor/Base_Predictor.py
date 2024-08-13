@@ -3,7 +3,7 @@ import torch
 from utils.functional import accuracy
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
-from utils.recorder import Recorder
+from utils.logger import SingleExpRecorder
 from copy import deepcopy
 import nni
 
@@ -25,7 +25,7 @@ class Predictor:
         self.metric = roc_auc_score if data.n_classes == 1 else accuracy
         self.edge_index = data.adj.indices()
         self.adj = data.adj if self.conf.dataset['sparse'] else data.adj.to_dense()
-        self.recoder = Recorder(self.conf.training['patience'], self.conf.training['criterion'])
+        self.recoder = SingleExpRecorder(self.conf.training['patience'], self.conf.training['criterion'])
         self.feats = data.feats
         self.n_nodes = data.n_nodes
         self.n_classes = data.n_classes

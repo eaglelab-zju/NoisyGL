@@ -3,9 +3,6 @@ from predictor.module.SCE import *
 from predictor.module.GNNs import GCN
 import time
 import torch
-from utils.functional import accuracy
-from sklearn.metrics import roc_auc_score
-from utils.recorder import Recorder
 from copy import deepcopy
 import nni
 

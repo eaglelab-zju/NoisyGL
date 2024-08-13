@@ -6,7 +6,7 @@ import numpy as np
 from utils.labelnoise import label_process
 from utils.dataloader import Dataset
 from utils.tools import load_conf, setup_seed, get_neighbors
-from utils.logger import Logger, ResultRecorder
+from utils.logger import MultiExpRecorder, ResultLogger
 from predictor.NRGNN_Predictor import nrgnn_Predictor
 from predictor.CP_Predictor import cp_Predictor
 from predictor.Smodel_Predictor import smodel_Predictor
@@ -70,7 +70,7 @@ def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, d
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--runs', type=int,
-                    default=2,
+                    default=10,
                     help="Number of experiments for each combination of method and data")
 parser.add_argument('--methods', type=str, nargs='+',
                     default=['gcn', 'smodel', 'coteaching', 'jocor', 'apl', 'sce', 'forward', 'backward'],
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         for noise_rate in noise_rate_list:
             noise_list.append([noise_rate, noise_type])
 
-    result_recorder = ResultRecorder(method_list, data_list, noise_list, args.runs)
+    result_recorder = ResultLogger(method_list, data_list, noise_list, args.runs)
     for noise_rate, noise_type in noise_list:
         for data_name in data_list:
             data_conf = load_conf('./config/_dataset/' + data_name + '.yaml')
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                            split_type=data_conf.split['split_type'])
 
             for method_name in method_list:
-                logger = Logger(runs=args.runs)
+                logger = MultiExpRecorder(runs=args.runs)
                 for run in range(args.runs):
                     # setup different random seed for each runs
                     setup_seed(args.seed + run)

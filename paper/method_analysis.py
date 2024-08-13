@@ -8,7 +8,7 @@ import numpy as np
 from utils.labelnoise import label_process
 from utils.dataloader import Dataset
 from utils.tools import load_conf, setup_seed, get_neighbors
-from utils.logger import Logger
+from utils.logger import MultiExpRecorder
 from predictor.NRGNN_Predictor import nrgnn_Predictor
 from predictor.CP_Predictor import cp_Predictor
 from predictor.Smodel_Predictor import smodel_Predictor
@@ -139,7 +139,7 @@ if __name__ == '__main__':
                        split_type=data_conf.split['split_type'])
 
         for method_name in method_list:
-            logger = Logger(runs=args.runs)
+            logger = MultiExpRecorder(runs=args.runs)
             for run in range(args.runs):
                 # setup different random seed for each runs
                 setup_seed(args.seed + run)
