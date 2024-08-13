@@ -58,8 +58,7 @@ You can customize the combination of method, data, noise type, and noise rate by
 python single_exp.py --method gcn --data cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --seed 3000
 ```
 This command runs a single experiment in debug mode and is usually used for debugging. 
-By running this command, the detailed experiment information will be printed on the terminal, 
-and you can use this information to locate the problem.
+By running this, detailed experiment information will be printed on the terminal, which can be used to locate the problem.
 
 When designing your customized predictor, you can add code blocks that only execute in debug mode in the following way:
 ``` python
