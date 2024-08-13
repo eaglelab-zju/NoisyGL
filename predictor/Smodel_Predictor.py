@@ -64,11 +64,11 @@ class smodel_Predictor(Predictor):
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
 
-        print('Optimization Finished!')
-        print('Time(s): {:.4f}'.format(self.total_time))
         loss_test, acc_test = self.test(self.test_mask)
-        if self.conf.training['debug']:
-            heatmap(self.noiseAda.B.detach().cpu().numpy(), n_classes=self.n_classes, title="S-model")
         self.result['test'] = acc_test
-        print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
+        if self.conf.training['debug']:
+            print('Optimization Finished!')
+            print('Time(s): {:.4f}'.format(self.total_time))
+            print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
+            heatmap(self.noiseAda.B.detach().cpu().numpy(), n_classes=self.n_classes, title="S-model")
         return self.result
