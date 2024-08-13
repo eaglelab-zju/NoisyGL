@@ -24,33 +24,23 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 [PyTorch Geometric, PyTorch Sparse](https://data.pyg.org/whl/)
 [DEEP GRAPH LIBRARY (DGL)](https://data.dgl.ai/wheels/repo.html)
 -->
-**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse) and [DEEP GRAPH LIBRARY (DGL)](https://www.dgl.ai/pages/start.html). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL:
+**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse) and [DEEP GRAPH LIBRARY (DGL)](https://www.dgl.ai/pages/start.html). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
 
-- torch>=2.0.0
-- torch_geometric>=2.1.0
-- torch_sparse>=0.6.12
-- dgl>=0.9.0
-
-**Installing with Conda**
-``` bash
-conda create -n NoisyGL python=3.11
-conda activate NoisyGL
-pip install -r requirements.txt
-```
-
-
-#### Required Dependencies:
+## Required Dependencies:
 - Python 3.11+
+- torch>=2.1.0
+- pyg>=2.5.0
+- torch_sparse>=0.6.18
+- torch_cluster>=1.6.2
+- dgl>=2.0.0
 - pandas
 - scipy
 - scikit-learn
 - ruamel 
 - ruamel.yaml
-- pyro-api
-- pyro-ppl
-- numba
 - nni
 - matplotlib
+- numpy
 
 ## Quick Start
 ###  Run comprehensive benchmark.
