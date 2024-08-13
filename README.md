@@ -108,6 +108,18 @@ by changing the corresponding arguments.
 `clean`, `pair`, `uniform`
 
 ## Citation
+If our work could help your research, please cite: [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://arxiv.org/abs/2406.04299) 
+
+```
+@article{wang2024noisygl,
+  title={NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise},
+  author={Wang, Zhonghao and Sun, Danyu and Zhou, Sheng and Wang, Haobo and Fan, Jiapei and Huang, Longtao and Bu, Jiajun},
+  journal={arXiv preprint arXiv:2406.04299},
+  year={2024}
+}
+```
+
+
 
 ## Reference
 #### LLN:
