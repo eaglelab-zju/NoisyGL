@@ -9,6 +9,11 @@ model:
   output_layer: false
 
   noise_rate_init: 0.1
+  alpha: 0.2
+  beta: 0.2
+  p: 0.8
+  tau: 0.5
+  T: 2
 
 training:
   lr: 5e-3

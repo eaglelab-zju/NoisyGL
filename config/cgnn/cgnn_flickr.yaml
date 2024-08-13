@@ -9,6 +9,8 @@ model:
   output_layer: false
 
   noise_rate_init: 0.1
+  temperature: 0.5
+  threshold: 0.8
 
 training:
   lr: 1e-2

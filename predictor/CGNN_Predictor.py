@@ -4,6 +4,7 @@ import torch
 import time
 from copy import deepcopy
 from torch_geometric.utils import dropout_adj
+import nni
 
 
 class cgnn_Predictor(Predictor):
@@ -15,14 +16,15 @@ class cgnn_Predictor(Predictor):
                           out_channels=conf.model['n_classes'], dropout=conf.model['dropout']).to(self.device)
         self.optim = torch.optim.Adam(self.model.parameters(), lr=self.conf.training['lr'],
                                       weight_decay=self.conf.training['weight_decay'])
-        self.temperature = 0.5
+        self.temperature = conf.model['temperature']
+        self.threshold = conf.model['threshold']
 
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
             features, adj = self.feats, self.edge_index
             if epoch >= self.conf.training['warmup_epochs']:
                 cleaned_labels = clean_noisy_labels(self.model, features, self.adj, self.noisy_label, self.train_mask,
-                                                    self.n_nodes, threshold=0.8)
+                                                    self.n_nodes, threshold=self.threshold)
                 self.noisy_label[self.train_mask] = cleaned_labels[self.train_mask]
             improve = ''
             t0 = time.time()
@@ -36,7 +38,7 @@ class cgnn_Predictor(Predictor):
             x_node_dropout = custom_dropout_features(features, p=0.5, training=True)
             out_node_dropout = self.model(x_node_dropout, adj)
 
-            loss_cl = contrastive_loss(out_edge_dropout, out_node_dropout, temperature=0.5)
+            loss_cl = contrastive_loss(out_edge_dropout, out_node_dropout, temperature=self.temperature)
             loss_sup = supervised_loss(out_edge_dropout[self.train_mask], self.noisy_label[self.train_mask])
             loss_train = loss_cl + loss_sup
             acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
@@ -59,6 +61,8 @@ class cgnn_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
+                loss_test, acc_test = self.test(self.test_mask)
+                nni.report_intermediate_result(acc_test)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

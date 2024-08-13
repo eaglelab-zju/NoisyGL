@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 from copy import deepcopy
 import torch_geometric.utils as utils
+import nni
 
 
 class nrgnn_Predictor(Predictor):

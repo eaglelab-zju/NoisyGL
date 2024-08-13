@@ -1,4 +1,20 @@
 {
+  "alpha": {
+    "_type": "choice",
+    "_value": [
+      0.1,
+      0.5,
+      1
+    ]
+  },
+  "beta": {
+    "_type": "choice",
+    "_value": [
+      0.1,
+      0.5,
+      1
+    ]
+  },
   "dropout": {
     "_type": "uniform",
     "_value": [

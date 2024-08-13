@@ -5,6 +5,7 @@ from copy import deepcopy
 import torch
 import torch.nn.functional as F
 from torch_geometric.utils import dropout_adj, mask_feature
+import nni
 
 
 class crgnn_Predictor(Predictor):
@@ -19,10 +20,11 @@ class crgnn_Predictor(Predictor):
         self.optim = torch.optim.Adam(list(self.model.parameters()) + list(self.proj_head.parameters()) +
                                       list(self.class_head.parameters()), lr=self.conf.training['lr'],
                                       weight_decay=self.conf.training['weight_decay'])
-        self.T = 2
-        self.tau = 0.5
-        self.p = 0.8
-        self.alpha = 0.2
+        self.T = conf.model["T"]
+        self.tau = conf.model["tau"]
+        self.p = conf.model["p"]
+        self.alpha = conf.model["alpha"]
+        self.beta = conf.model["beta"]
 
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
@@ -89,6 +91,8 @@ class crgnn_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
+                loss_test, acc_test = self.test(self.test_mask)
+                nni.report_intermediate_result(acc_test)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

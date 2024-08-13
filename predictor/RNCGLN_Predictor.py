@@ -3,6 +3,7 @@ from predictor.module.RNCGLN import RNCGLN_model, get_A_r, Ncontrast
 import torch
 import time
 from copy import deepcopy
+import nni
 
 
 class rncgln_Predictor(Predictor):
@@ -106,6 +107,8 @@ class rncgln_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
+                loss_test, acc_test = self.test(self.test_mask)
+                nni.report_intermediate_result(acc_test)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

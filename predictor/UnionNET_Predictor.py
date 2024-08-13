@@ -4,6 +4,7 @@ from predictor.module.UnionNET import *
 import torch
 import time
 from copy import deepcopy
+import nni
 
 
 class unionnet_Predictor(Predictor):
@@ -20,6 +21,10 @@ class unionnet_Predictor(Predictor):
                                       weight_decay=self.conf.training['weight_decay'])
         # UnionNET
         self.k = conf.model['k']
+        self.alpha = conf.model['alpha']
+        self.beta = conf.model['beta']
+        self.kldiv = torch.nn.KLDivLoss()
+
 
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
@@ -40,7 +45,10 @@ class unionnet_Predictor(Predictor):
 
             loss_reweighting = torch.sum(class_prob * F.cross_entropy(output[self.train_mask], self.noisy_label[self.train_mask]))
             loss_correction = label_correction_loss(support_set, self.noisy_label[self.train_mask], features[self.train_mask], class_prob)
-            loss_train = loss_reweighting + loss_correction
+            # Add kl-divergence loss results in a worse performance, we set beta = 0
+            # loss_kl = F.kl_div(output[self.train_mask], F.one_hot(self.noisy_label[self.train_mask]).to(torch.float))
+            # loss_train = self.alpha * loss_reweighting + (1 - self.alpha) * loss_correction + self.beta * loss_kl
+            loss_train = self.alpha * loss_reweighting + (1 - self.alpha) * loss_correction
             acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
                                     output[self.train_mask].detach().cpu().numpy())
 
@@ -61,6 +69,8 @@ class unionnet_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
+                loss_test, acc_test = self.test(self.test_mask)
+                nni.report_intermediate_result(acc_test)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

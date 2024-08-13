@@ -1,4 +1,20 @@
 {
+  "T": {
+    "_type": "choice",
+    "_value": [
+      50,
+      100,
+      150
+    ]
+  },
+  "lambda": {
+    "_type": "choice",
+    "_value": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
   "dropout": {
     "_type": "uniform",
     "_value": [

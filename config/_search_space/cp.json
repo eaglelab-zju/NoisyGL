@@ -1,4 +1,12 @@
 {
+  "lam": {
+    "_type": "choice",
+    "_value": [
+      0.1,
+      0.2,
+      0.3
+    ]
+  },
   "dropout": {
     "_type": "uniform",
     "_value": [
