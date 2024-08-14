@@ -7,6 +7,7 @@
 /data/flickr/raw/__MACOSX/._flickr.attr
 /data/flickr/raw/__MACOSX/flickr.attr/._labels.txt
 /.idea/.gitignore
+/.idea/encodings.xml
 /.gitignore
 /data/Computers/raw/amazon_electronics_computers.npz
 /data/Photo/raw/amazon_electronics_photo.npz
