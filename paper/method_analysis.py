@@ -160,36 +160,43 @@ if __name__ == '__main__':
                 std = total_results['correct_labeled_train_accuracy']['std']
                 result_record.loc[data_name, 'ACLT'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'ACLT: {acc:03.2f} ± {std:03.2f}')
 
                 acc = total_results['incorrect_labeled_train_accuracy']['acc']
                 std = total_results['incorrect_labeled_train_accuracy']['std']
                 result_record.loc[data_name, 'AILT'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'AILT: {acc:03.2f} ± {std:03.2f}')
 
                 acc = total_results['incorrect_labeled_mislead_train_accuracy']['acc']
                 std = total_results['incorrect_labeled_mislead_train_accuracy']['std']
                 result_record.loc[data_name, 'AILMT'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'AILMT: {acc:03.2f} ± {std:03.2f}')
 
                 acc = total_results['unlabeled_correct_supervised_accuracy']['acc']
                 std = total_results['unlabeled_correct_supervised_accuracy']['std']
                 result_record.loc[data_name, 'AUCS'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'AUCS: {acc:03.2f} ± {std:03.2f}')
 
                 acc = total_results['unlabeled_unsupervised_accuracy']['acc']
                 std = total_results['unlabeled_unsupervised_accuracy']['std']
                 result_record.loc[data_name, 'AUU'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'AUU: {acc:03.2f} ± {std:03.2f}')
 
                 acc = total_results['unlabeled_incorrect_supervised_accuracy']['acc']
                 std = total_results['unlabeled_incorrect_supervised_accuracy']['std']
                 result_record.loc[data_name, 'AUIS'][
                     method_name] = f'$ {acc:03.2f} \\pm {std:03.2f} $'
+                print(f'AUIS: {acc:03.2f} ± {std:03.2f}')
 
                 mean = total_results['total_time']['mean']
                 std = total_results['total_time']['std']
                 result_record.loc[data_name, 'Time'][
                     method_name] = f'$ {mean:03.2f} \\pm {std:03.2f} $'
+                print(f'Time: {acc:03.2f} ± {std:03.2f}')
 
                 message = result_record.to_latex(na_rep='0', bold_rows=True, caption=f'RESULTS FOR {args.runs:d} RUNS')
                 f.write(message)
