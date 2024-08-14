@@ -70,7 +70,7 @@ if __name__ == '__main__':
     print(args)
     data_path = './data/'
     data_conf = load_conf('./config/_dataset/' + args.data + '.yaml')
-    if nni.get_trial_id() != "STANDALONE":
+    if nni.get_trial_id() == "STANDALONE":
         setup_seed(args.seed)
     data = Dataset(args.data, path=data_path,
                    feat_norm=data_conf.norm['feat_norm'], adj_norm=data_conf.norm['adj_norm'],
