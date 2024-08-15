@@ -18,6 +18,18 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 
 ![timeline](img/timeline.png)
 
+## Why NoisyGL ?
+
+NoisyGL offers the following features:
+ 1. **A unified data loader module for diverse datasets.** You can customize the configuration file of the dataset (located in config/_dataset) to modify data splitting and preprocessing strategies. 
+ 2. **Generic noise injection schemes.** These schemes, widely used in previous studies, can comprehensively evaluate the robustness of each method.
+ 3. **Generic Base_predictor class.** NoisyGL provides a generic implementation template and API for different GLN predictors. You can develop your methods by overriding specific methods.
+ 4. **Integrated hyperparameter optimization tool.** NoisyGL integrates Neural Network Intelligence (NNI) provided by Microsoft (located in hyperparam_opt.py). Users can easily optimize and update hyperparameters for each method based on the instructions in the README.
+
+The above features provide you with convenience and freedom when using our library. 
+You can modify the implementation details of specific methods, 
+or add new modules to implement your novel methods within the framework we provide easily.
+
 ## Installation
 <!--
 [PyTorch](https://pytorch.org/get-started/previous-versions/)
