@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--file_name', type=str,
-                    default='2024-08-13_20-30-09.xlsx',
+                    default='',
                     help='xlsx file to convert')
 parser.add_argument('--sheet_name', type=str,
                     default='aclt',
