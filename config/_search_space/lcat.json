@@ -1,5 +1,18 @@
 {
-  "dropout": {
+  "heads": {
+    "_type": "choice",
+    "_value": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "negative_slope": {
     "_type": "uniform",
     "_value": [
       0.1,
@@ -18,24 +31,6 @@
       1e-2,
       5e-2,
       1e-1
-    ]
-  },
-  "n_hidden": {
-    "_type": "choice",
-    "_value": [
-      12,
-      32,
-      64,
-      128
-    ]
-  },
-  "n_layer": {
-    "_type": "choice",
-    "_value": [
-      1,
-      2,
-      3,
-      4
     ]
   },
   "weight_decay": {

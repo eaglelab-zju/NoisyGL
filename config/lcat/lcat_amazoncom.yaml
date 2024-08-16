@@ -6,16 +6,15 @@ dataset:
   sparse: true
 model:
   act: F.relu
-  dropout: 0.5
+  dropout: 0.4628544157737705
   input_layer: false
-  method: gcn
-  n_hidden: 64
-  n_layer: 2
+  heads: 1
+  negative_slope: 0.2
   norm_info: null
   output_layer: false
 training:
   criterion: metric
-  lr: 0.01
+  lr: 0.05
   n_epochs: 200
   patience: null
-  weight_decay: 0.0005
+  weight_decay: 0.005

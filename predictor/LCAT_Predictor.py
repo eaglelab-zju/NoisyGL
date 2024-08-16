@@ -11,7 +11,9 @@ class lcat_Predictor(Predictor):
         super().__init__(conf, data, device)
 
     def method_init(self, conf, data):
-        self.model = GATv2Layer(in_channels=conf.model['n_feat'], out_channels=conf.model['n_classes'], mode='lcat').to(self.device)
+        self.model = GATv2Layer(in_channels=conf.model['n_feat'], out_channels=conf.model['n_classes'],
+                                mode='lcat', heads=conf.model['heads'],
+                                negative_slope=conf.model['negative_slope']).to(self.device)
         self.optim = torch.optim.Adam(self.model.parameters(), lr=self.conf.training['lr'],
                                       weight_decay=self.conf.training['weight_decay'])
 
