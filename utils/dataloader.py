@@ -116,30 +116,18 @@ class Dataset:
             if feat_norm:
                 self.feats = normalize(self.feats, style='row')
 
-        elif ds_name in ['questions', 'chameleon-filtered', 'squirrel-filtered', 'minesweeper',
-                         'wiki-cooc', 'tolokers']:
-            self.feats, self.adj, self.labels, self.splits = hetero_load(ds_name, path=self.path)
-
-            self.feats = self.feats.to(self.device)
-            self.labels = self.labels.to(self.device)
-            self.adj = self.adj.to(self.device)
-            self.n_nodes = self.feats.shape[0]
-            self.dim_feats = self.feats.shape[1]
-            self.n_edges = len(self.adj.coalesce().val) / 2
-            if feat_norm:
-                self.feats = normalize(self.feats, style='row')
-            self.n_classes = len(self.labels.unique())
         self.adj = self.adj.coalesce()
         row = self.adj.indices()[0]
         d = degree(row, self.n_nodes)
         self.ave_degree = float(torch.mean(d))
 
         print("""----Data statistics------'
+                Name: %s
                 #Nodes %d
                 #Edges %d
                 #Classes %d
                 #Ave_degree %.2f""" %
-              (self.n_nodes, self.n_edges, self.n_classes, self.ave_degree))
+              (self.name, self.n_nodes, self.n_edges, self.n_classes, self.ave_degree))
 
     def split_data(self, verbose=True):
 
@@ -155,9 +143,6 @@ class Dataset:
         self.train_masks = None
         self.val_masks = None
         self.test_masks = None
-        train_type = None
-        val_type = None
-        test_type = None
 
         if self.split_type == 'default':
             if not hasattr(self.g, 'train_mask'):
