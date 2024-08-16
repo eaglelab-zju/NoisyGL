@@ -1,14 +1,11 @@
 import torch
-import dgl
-import numpy as np
 from utils.functional import normalize
 from utils.tools import get_npz_data, get_homophily
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS, WikipediaNetwork, WebKB, Actor, \
-    AttributedGraphDataset, TUDataset, CitationFull
+    AttributedGraphDataset, TUDataset, CitationFull, HeterophilousGraphDataset
 from torch_geometric.utils import degree
 import os
-import urllib.request
-from .datasplit import get_split, k_fold
+from .datasplit import get_split
 
 
 class Dataset:
@@ -96,7 +93,8 @@ class Dataset:
                 self.feats = normalize(self.feats, style='row')
 
         elif ds_name in ['cora', 'pubmed', 'citeseer', 'amazoncom', 'amazonpho', 'coauthorcs', 'coauthorph',
-                         'blogcatalog', 'flickr', 'wikics', 'cornell', 'texas', 'wisconsin', 'dblp']:
+                         'blogcatalog', 'flickr', 'wikics', 'cornell', 'texas', 'wisconsin', 'dblp', 'amazon-ratings',
+                         'roman-empire']:
             self.data_raw = pyg_load_dataset(ds_name, path=self.path)
             self.g = self.data_raw[0]
             self.feats = self.g.x  # unnormalized
@@ -118,8 +116,8 @@ class Dataset:
             if feat_norm:
                 self.feats = normalize(self.feats, style='row')
 
-        elif ds_name in ['amazon-ratings', 'questions', 'chameleon-filtered', 'squirrel-filtered', 'minesweeper',
-                         'roman-empire', 'wiki-cooc', 'tolokers']:
+        elif ds_name in ['questions', 'chameleon-filtered', 'squirrel-filtered', 'minesweeper',
+                         'wiki-cooc', 'tolokers']:
             self.feats, self.adj, self.labels, self.splits = hetero_load(ds_name, path=self.path)
 
             self.feats = self.feats.to(self.device)
@@ -266,120 +264,6 @@ class Dataset:
                    len(self.val_masks), val_type,
                    len(self.test_masks), test_type))
 
-        '''
-                if self.name in ['blogcatalog', 'flickr']:
-            def load_obj(file_name):
-                with open(file_name, 'rb') as f:
-                    return pickle.load(f)
-
-            def download(name):
-                url = 'https://github.com/zhao-tong/GAug/raw/master/data/graphs/'
-                try:
-                    print('Downloading', url + name)
-                    urllib.request.urlretrieve(url + name, os.path.join(self.path, name))
-                    print('Done!')
-                except:
-                    raise Exception(
-                        'Download failed! Make sure you have stable Internet connection and enter the right name')
-
-            split_file = self.name + '_tvt_nids.pkl'
-            if not os.path.exists(os.path.join(self.path, split_file)):
-                download(split_file)
-            train_indices, val_indices, test_indices = load_obj(os.path.join(self.path, split_file))
-            for i in range(n_splits):
-                self.train_masks.append(train_indices)
-                self.val_masks.append(val_indices)
-                self.test_masks.append(test_indices)
-
-        elif self.name in ['coauthorcs', 'coauthorph', 'amazoncom', 'amazonpho']:
-            for i in range(n_splits):
-                np.random.seed(i)
-                train_indices, val_indices, test_indices = get_split(self.labels.cpu().numpy(),
-                                                                     train_examples_per_class=20,
-                                                                     val_examples_per_class=30)
-                self.train_masks.append(train_indices)
-                self.val_masks.append(val_indices)
-                self.test_masks.append(test_indices)
-        elif self.name in ['cora', 'citeseer', 'pubmed']:
-            for i in range(n_splits):
-                self.train_masks.append(torch.nonzero(self.g.train_mask, as_tuple=False).squeeze().numpy())
-                self.val_masks.append(torch.nonzero(self.g.val_mask, as_tuple=False).squeeze().numpy())
-                self.test_masks.append(torch.nonzero(self.g.test_mask, as_tuple=False).squeeze().numpy())
-
-        elif self.name in ['amazon-ratings', 'questions', 'chameleon-filtered', 'squirrel-filtered', 'minesweeper',
-                           'roman-empire', 'wiki-cooc', 'tolokers']:
-            assert n_splits < 10, 'n_splits > splits provided'
-            self.train_masks = self.splits[0][:n_splits]
-            self.val_masks = self.splits[1][:n_splits]
-            self.test_masks = self.splits[2][:n_splits]
-        elif self.name in ['ogbn-arxiv']:
-            split_idx = self.data_raw.get_idx_split()
-            train_idx = split_idx['train']
-            val_idx = split_idx['valid']
-            test_idx = split_idx['test']
-            for i in range(n_splits):
-                self.train_masks.append(train_idx.numpy())
-                self.val_masks.append(val_idx.numpy())
-                self.test_masks.append(test_idx.numpy())
-        elif self.name in ['wikics']:
-            for i in range(n_splits):
-                self.train_masks.append(torch.nonzero(self.g.train_mask[:, i], as_tuple=False).squeeze().numpy())
-                self.val_masks.append(torch.nonzero(self.g.val_mask[:, i], as_tuple=False).squeeze().numpy())
-                self.test_masks.append(torch.nonzero(self.g.test_mask, as_tuple=False).squeeze().numpy())
-        elif 'csbm' in self.name:
-            for i in range(n_splits):
-                np.random.seed(i)
-                train_indices, val_indices, test_indices = get_split(self.labels.cpu().numpy(),
-                                                                     train_size=int(self.n_nodes * self.train_percent),
-                                                                     val_size=int(self.n_nodes * self.val_percent))
-                self.train_masks.append(train_indices)
-                self.val_masks.append(val_indices)
-                self.test_masks.append(test_indices)
-        elif self.name in ['regression']:
-            for i in range(n_splits):
-                self.train_masks.append(self.masks[str(i)]['train'])
-                self.val_masks.append(self.masks[str(i)]['val'])
-                self.test_masks.append(self.masks[str(i)]['test'])
-        elif self.name in ['cornell', 'texas', 'wisconsin']:
-            for i in range(n_splits):
-                self.train_masks.append(torch.nonzero(self.g.train_mask[:, i], as_tuple=False).squeeze().numpy())
-                self.val_masks.append(torch.nonzero(self.g.val_mask[:, i], as_tuple=False).squeeze().numpy())
-                self.test_masks.append(torch.nonzero(self.g.test_mask, as_tuple=False).squeeze().numpy())
-        elif self.name in ['dblp']:
-            for i in range(n_splits):
-                np.random.seed(i)
-                train_indices, val_indices, test_indices = get_split(self.labels.cpu().numpy(),
-                                                                     train_size=int(self.n_nodes * self.train_percent),
-                                                                     val_size=int(self.n_nodes * self.val_percent))
-                self.train_masks.append(train_indices)
-                self.val_masks.append(val_indices)
-                self.test_masks.append(test_indices)
-        else:
-            print('dataset not implemented')
-            exit(0)
-        
-        '''
-
-    def split_graphs(self, n_splits, verbose=True):
-        '''
-        Function to conduct data splitting for graph-level datasets.
-
-        Parameters
-        ----------
-        n_splits : int
-            Number of data splits.
-        verbose : bool
-            Whether to print statistics.
-
-        '''
-        self.train_masks = []
-        self.val_masks = []
-        self.test_masks = []
-        for fold, (train_idx, test_idx, val_idx) in enumerate(zip(*k_fold(self.data_raw, n_splits))):
-            self.train_masks.append(train_idx)
-            self.val_masks.append(val_idx)
-            self.test_masks.append(test_idx)
-
 
 def pyg_load_dataset(name, path='./data/'):
     dic = {'cora': 'Cora',
@@ -397,7 +281,9 @@ def pyg_load_dataset(name, path='./data/'):
            'wisconsin': 'Wisconsin',
            'actor': 'Actor',
            'blogcatalog': 'blogcatalog',
-           'flickr': 'flickr'}
+           'flickr': 'flickr',
+           'amazon-ratings': 'Amazon-ratings',
+           'roman-empire': 'Roman-empire'}
     if name in dic.keys():
         name = dic[name]
     else:
@@ -419,49 +305,10 @@ def pyg_load_dataset(name, path='./data/'):
         dataset = Actor(root=os.path.join(path, name))
     elif name in ['blogcatalog', 'flickr']:
         dataset = AttributedGraphDataset(root=path, name=name)
+    elif name in ['Amazon-ratings', 'Roman-empire']:
+        dataset = HeterophilousGraphDataset(root=path, name=name)
     elif name in ['dblp']:
         dataset = CitationFull(root=path, name=name)
     else:
         dataset = TUDataset(root=path, name=name)
     return dataset
-
-
-def hetero_load(name, path='./data/hetero_data'):
-    file_name = f'{name.replace("-", "_")}.npz'
-    if not os.path.exists(path):
-        os.makedirs(path)
-    if not os.path.exists(os.path.join(path, file_name)):
-        download(file_name, path)
-    data = np.load(os.path.join(path, f'{name.replace("-", "_")}.npz'))
-    node_features = torch.tensor(data['node_features'])
-    labels = torch.tensor(data['node_labels'])
-    edges = torch.tensor(data['edges'])
-    train_masks = torch.tensor(data['train_masks'])
-    val_masks = torch.tensor(data['val_masks'])
-    test_masks = torch.tensor(data['test_masks'])
-
-    train_indices = [torch.nonzero(x, as_tuple=False).squeeze().numpy() for x in train_masks]
-    val_indices = [torch.nonzero(x, as_tuple=False).squeeze().numpy() for x in val_masks]
-    test_indices = [torch.nonzero(x, as_tuple=False).squeeze().numpy() for x in test_masks]
-
-    n_nodes = node_features.shape[0]
-    graph = dgl.graph((edges[:, 0], edges[:, 1]), num_nodes=len(node_features), idtype=torch.long)
-    graph = dgl.to_bidirected(graph)
-    adj = graph.adj()
-
-    num_classes = len(labels.unique())
-    num_targets = 1 if num_classes == 2 else num_classes
-    if num_targets == 1:
-        labels = labels.float()
-
-    return node_features, adj, labels, (train_indices, val_indices, test_indices)
-
-
-def download(name, path):
-    url = 'https://github.com/OpenGSL/HeterophilousDatasets/raw/main/data/'
-    try:
-        print('Downloading', url + name)
-        urllib.request.urlretrieve(url + name, os.path.join(path, name))
-        print('Done!')
-    except:
-        raise Exception('''Download failed! Make sure you have stable Internet connection and enter the right name''')
