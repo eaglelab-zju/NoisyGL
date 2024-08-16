@@ -21,7 +21,7 @@ def pair_noise_cp(n_classes, noise_rate):
     return P
 
 
-def asymmetric_noise_cp(n_classes, noise_rate):
+def random_noise_cp(n_classes, noise_rate):
     P = (1.0 - np.float64(noise_rate)) * np.eye(n_classes)
     for i in range(n_classes):
         tp = np.random.rand(n_classes)
@@ -88,10 +88,10 @@ def label_process(labels, n_classes, noise_type='uniform', noise_rate=0, random_
             if debug:
                 print("Uniform noise")
             cp = uniform_noise_cp(n_classes, noise_rate)
-        elif noise_type == 'asymmetric':
+        elif noise_type == 'random':
             if debug:
-                print("Asymmetric noise")
-            cp = asymmetric_noise_cp(n_classes, noise_rate)
+                print("Random noise")
+            cp = random_noise_cp(n_classes, noise_rate)
         elif noise_type == 'pair':
             if debug:
                 print("Pair noise")

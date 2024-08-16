@@ -53,7 +53,7 @@ parser.add_argument('--method', type=str,
                     help="Select methods")
 parser.add_argument('--noise_type', type=str,
                     default='uniform',
-                    choices=['clean', 'uniform', 'pair', 'asymmetric'], help='Type of label noise')
+                    choices=['clean', 'uniform', 'pair', 'random'], help='Type of label noise')
 parser.add_argument('--noise_rate', type=float,
                     default='0.3',
                     help='Label noise rate')

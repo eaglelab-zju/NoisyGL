@@ -85,7 +85,7 @@ parser.add_argument('--datasets', type=str, nargs='+',
                     help='Select datasets')
 parser.add_argument('--noise_type', type=str, nargs='+',
                     default=['clean', 'pair', 'uniform'],
-                    choices=['clean', 'pair', 'uniform', 'asymmetric'], help='Noise type')
+                    choices=['clean', 'pair', 'uniform', 'random'], help='Noise type')
 parser.add_argument('--noise_rate', type=float, nargs='+',
                     default=[0.1, 0.2, 0.3, 0.4, 0.5],
                     help='Noise rate')
