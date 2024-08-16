@@ -108,7 +108,7 @@ by changing the corresponding arguments.
 | Roman-empire	    | 22,662	 | 32,927	 | 300	    | 18	       | 0.05	       | 2.90          |
 
 **noise type** ： 
-`clean`, `pair`, `uniform`
+`clean`, `pair`, `uniform`, `random`
 
 ## Citation
 If our work could help your research, please cite: [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://arxiv.org/abs/2406.04299) 
