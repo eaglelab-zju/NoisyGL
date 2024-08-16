@@ -9,7 +9,7 @@ parser.add_argument('--data', type=str,
                     help='Select dataset')
 parser.add_argument('--method', type=str,
                     default='gcn',
-                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward',
+                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward', 'lcat',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help="Select methods")
 parser.add_argument('--noise_type', type=str,
