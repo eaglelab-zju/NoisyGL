@@ -22,6 +22,7 @@ from predictor.APL_Predictor import apl_Predictor
 from predictor.SCE_Predictor import sce_Predictor
 from predictor.Forward_Predictor import forward_Predictor
 from predictor.Backward_Predictor import backward_Predictor
+from predictor.LCAT_Predictor import lcat_Predictor
 
 
 def merge_params(model_conf):
@@ -45,7 +46,7 @@ parser.add_argument('--data', type=str,
                     help='Select dataset')
 parser.add_argument('--method', type=str,
                     default='gcn',
-                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward',
+                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward', 'lcat',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help="Select methods")
 parser.add_argument('--noise_type', type=str,

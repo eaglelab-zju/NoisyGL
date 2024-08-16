@@ -1,0 +1,21 @@
+analysis:
+  flag: false
+  project: gnn-with-label-noise
+  save_graph: false
+dataset:
+  sparse: true
+model:
+  act: F.relu
+  dropout: 0.5
+  input_layer: false
+  method: gcn
+  n_hidden: 64
+  n_layer: 2
+  norm_info: null
+  output_layer: false
+training:
+  criterion: metric
+  lr: 0.01
+  n_epochs: 200
+  patience: null
+  weight_decay: 0.0005

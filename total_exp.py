@@ -26,6 +26,7 @@ from predictor.APL_Predictor import apl_Predictor
 from predictor.SCE_Predictor import sce_Predictor
 from predictor.Forward_Predictor import forward_Predictor
 from predictor.Backward_Predictor import backward_Predictor
+from predictor.LCAT_Predictor import lcat_Predictor
 
 
 def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, debug=True):
@@ -74,7 +75,7 @@ parser.add_argument('--runs', type=int,
                     help="Number of experiments for each combination of method and data")
 parser.add_argument('--methods', type=str, nargs='+',
                     default=['gcn', 'smodel', 'coteaching', 'jocor', 'apl', 'sce', 'forward', 'backward'],
-                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward',
+                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward', 'lcat',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help='Select methods')
 parser.add_argument('--datasets', type=str, nargs='+',
