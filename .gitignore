@@ -138,3 +138,11 @@
 /data/wisconsin/raw/wisconsin_split_0.6_0.2_7.npz
 /data/wisconsin/raw/wisconsin_split_0.6_0.2_8.npz
 /data/wisconsin/raw/wisconsin_split_0.6_0.2_9.npz
+/data/roman_empire/processed/data.pt
+/data/amazon_ratings/processed/pre_filter.pt
+/data/amazon_ratings/raw/amazon_ratings.npz
+/data/amazon_ratings/processed/data.pt
+/data/roman_empire/processed/pre_filter.pt
+/data/amazon_ratings/processed/pre_transform.pt
+/data/roman_empire/processed/pre_transform.pt
+/data/roman_empire/raw/roman_empire.npz

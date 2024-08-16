@@ -78,8 +78,10 @@ parser.add_argument('--methods', type=str, nargs='+',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help='Select methods')
 parser.add_argument('--datasets', type=str, nargs='+',
-                    default=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho', 'dblp', 'blogcatalog', 'flickr'],
-                    choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho', 'dblp', 'blogcatalog', 'flickr'],
+                    default=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
+                             'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
+                    choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
+                             'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select datasets')
 parser.add_argument('--noise_type', type=str, nargs='+',
                     default=['clean', 'pair', 'uniform'],

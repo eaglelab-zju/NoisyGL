@@ -43,7 +43,8 @@ def merge_params(model_conf):
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str,
                     default='cora',
-                    choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho', 'dblp', 'blogcatalog', 'flickr'],
+                    choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
+                             'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select dataset')
 parser.add_argument('--method', type=str,
                     default='gcn',
