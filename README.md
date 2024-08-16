@@ -92,18 +92,20 @@ by changing the corresponding arguments.
 `gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`
 
 **Dataset available** ： 
-`cora`, `citeseer`, `pubmed`, `amazoncom`, `amazonpho`, `dblp`, `blogcatalog`, `flickr`
+`cora`, `citeseer`, `pubmed`, `amazoncom`, `amazonpho`, `dblp`, `blogcatalog`, `flickr`, `amazon-ratings`, `roman-empire`
 
 | Dataset          | # Nodes | # Edges | # Feat. | # Classes | # Homophily | Avg. # degree |
 |------------------|---------|---------|---------|-----------|-------------|---------------|
 | Cora             | 2,708   | 5,278   | 1,433   | 7         | 0.81        | 3.90          |
 | Citeseer         | 3,327   | 4,552   | 3,703   | 6         | 0.74        | 2.74          |
 | Pubmed           | 19,717  | 44,324  | 500     | 3         | 0.80        | 4.50          |
-| Amazon-Computers | 13,752  | 491,722 | 767     | 10        | 0.78        | 35.76         |
-| Amazon-Photos    | 7,650   | 238,162 | 745     | 8         | 0.83        | 31.13         |
+| Amazon-Computers | 13,752  | 491,722 | 767     | 10        | 0.78        | 35.8          |
+| Amazon-Photos    | 7,650   | 238,162 | 745     | 8         | 0.83        | 31.1          |
 | DBLP             | 17,716  | 105,734 | 1,639   | 4         | 0.83        | 5.97          |
-| BlogCatalog      | 5,196   | 343,486 | 8,189   | 6         | 0.40        | 66.11         |
-| Flickr           | 7,575   | 239,738 | 12,047  | 9         | 0.24        | 63.30         |
+| BlogCatalog      | 5,196   | 343,486 | 8,189   | 6         | 0.40        | 66.1          |
+| Flickr           | 7,575   | 239,738 | 12,047  | 9         | 0.24        | 63.3          |
+| Amazon-ratings	  | 24,492	 | 93,050	 | 300	    | 5	        | 0.38	       | 7.60          |
+| Roman-empire	    | 22,662	 | 32,927	 | 300	    | 18	       | 0.05	       | 2.90          |
 
 **noise type** ： 
 `clean`, `pair`, `uniform`
