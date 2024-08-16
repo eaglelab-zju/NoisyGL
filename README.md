@@ -21,10 +21,10 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 ## Why NoisyGL ?
 
 NoisyGL offers the following features:
- 1. **A unified data loader module for diverse datasets.** You can customize the configuration file of the dataset (located in config/_dataset) to modify data splitting and preprocessing strategies. 
- 2. **Generic noise injection schemes.** These schemes, widely used in previous studies, can comprehensively evaluate the robustness of each method.
- 3. **Generic Base_predictor class.** NoisyGL provides a generic implementation template and API for different GLN predictors. You can develop your methods by overriding specific methods.
- 4. **Integrated hyperparameter optimization tool.** NoisyGL integrates Neural Network Intelligence (NNI) provided by Microsoft (located in hyperparam_opt.py). Users can easily optimize and update hyperparameters for each method based on the instructions in the README.
+ 1. **A unified data loader module for diverse datasets.** You can customize the configuration file of the dataset (located in [config/_dataset](https://github.com/eaglelab-zju/NoisyGL/tree/main/config/_dataset)) to modify data splitting and preprocessing strategies. 
+ 2. **Generic noise injection schemes.** These schemes ([utils.labelnoise](https://github.com/eaglelab-zju/NoisyGL/blob/main/utils/labelnoise.py)), widely used in previous studies, can comprehensively evaluate the robustness of each method.
+ 3. **Generic Base_predictor class.** NoisyGL provides a generic implementation template and API for different GLN predictors ([predictors.Base_predictor](https://github.com/eaglelab-zju/NoisyGL/blob/main/predictor/Base_Predictor.py)). You can develop your methods by overriding specific methods.
+ 4. **Integrated hyperparameter optimization tool.** NoisyGL integrates Neural Network Intelligence (NNI) provided by Microsoft ([hyperparam_opt.py](https://github.com/eaglelab-zju/NoisyGL/blob/main/hyperparam_opt.py)). You can easily optimize and update hyperparameters for each method based on the instructions in the README.
 
 The above features provide you with convenience and freedom when using our library. 
 You can modify the implementation details of specific methods, 
