@@ -36,7 +36,7 @@ or add new modules to implement your novel methods within the framework we provi
 [PyTorch Geometric, PyTorch Sparse](https://data.pyg.org/whl/)
 [DEEP GRAPH LIBRARY (DGL)](https://data.dgl.ai/wheels/repo.html)
 -->
-**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse), [PyTorch Cluster](https://github.com/rusty1s/pytorch_cluster) and [DEEP GRAPH LIBRARY (DGL)](https://www.dgl.ai/pages/start.html). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
+**Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse) and [PyTorch Cluster](https://github.com/rusty1s/pytorch_cluster). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
 
 ## Required Dependencies:
 - Python 3.11+
@@ -44,7 +44,6 @@ or add new modules to implement your novel methods within the framework we provi
 - pyg>=2.5.0
 - torch_sparse>=0.6.18
 - torch_cluster>=1.6.2
-- dgl>=2.0.0
 - pandas
 - scipy
 - scikit-learn
