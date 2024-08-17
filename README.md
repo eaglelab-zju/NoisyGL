@@ -18,6 +18,7 @@ NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and 
 
 ![timeline](img/timeline.png)
 
+
 ## Why NoisyGL ?
 
 NoisyGL offers the following features:
@@ -109,6 +110,12 @@ by changing the corresponding arguments.
 
 **noise type** ： 
 `clean`, `pair`, `uniform`, `random`
+
+## Performance overview
+
+Test accuracy of LLN and GLN methods on DBLP dataset under 30% pair and uniform noise, respectively (10 Runs).
+![performance overview DBLP](img/noise_type_DBLP.png)
+
 
 ## Citation
 If our work could help your research, please cite: [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://arxiv.org/abs/2406.04299) 
