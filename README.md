@@ -90,7 +90,7 @@ You can optimize hyperparameters for different methods on various datasets and n
 by changing the corresponding arguments. 
 
 **Method available** ： 
-`gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`
+`gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`, `lcat`
 
 **Dataset available** ： 
 `cora`, `citeseer`, `pubmed`, `amazoncom`, `amazonpho`, `dblp`, `blogcatalog`, `flickr`, `amazon-ratings`, `roman-empire`
@@ -109,7 +109,7 @@ by changing the corresponding arguments.
 | Roman-empire	    | 22,662	 | 32,927	 | 300	    | 18	       | 0.05	       | 2.90          |
 
 **noise type** ： 
-`clean`, `pair`, `uniform`, `random`
+`clean`, `pair`, `uniform`, `random (new)`
 
 ## Performance overview
 
