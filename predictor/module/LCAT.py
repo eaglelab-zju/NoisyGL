@@ -1,4 +1,5 @@
 import math
+from math import log
 from typing import Optional, Union, Tuple
 
 import torch
@@ -11,6 +12,7 @@ from torch_geometric.typing import Adj, OptTensor, PairTensor
 from torch_geometric.utils import add_self_loops, remove_self_loops, softmax, degree
 from torch_sparse import set_diag, SparseTensor
 from torch_geometric.nn.dense.linear import Linear, Parameter
+from torch_geometric.nn.conv.gcn_conv import gcn_norm
 
 
 class GeneralGATLayer(MessagePassing):
@@ -141,9 +143,12 @@ class GeneralGATLayer(MessagePassing):
         assert isinstance(x, Tensor) and x.dim() == 2
 
         # We apply the linear layer before convolving to avoid numerical errors
-        x_l = self.get_x_l(x).view(-1, self.heads, self.out_channels)
-        x_r = self.get_x_r(x).view(-1, self.heads, self.out_channels)
-        x_v = self.get_x_v(x).view(-1, self.heads, self.out_channels)
+        x_l = self.get_x_l(x)
+        x_l = x_l.view(-1, self.heads, self.out_channels)
+        x_r = self.get_x_r(x)
+        x_r = x_r.view(-1, self.heads, self.out_channels)
+        x_v = self.get_x_v(x)
+        x_v = x_v.view(-1, self.heads, self.out_channels)
 
         num_nodes = x.size(0)
         if size_target is not None:
@@ -271,3 +276,70 @@ class GATv2Layer(GeneralGATLayer):
 
     def compute_score(self, x_i, x_j, index, ptr, size_i):
         return torch.sum(F.leaky_relu(x_i + x_j, self.negative_slope) * self.att, dim=-1, keepdim=True)
+
+
+class GAT2v2Layer(GATv2Layer):
+    x_0: OptTensor
+    def __init__(
+            self,
+            channels: Union[int, Tuple[int, int]],
+            alpha: float,
+            theta: float = None,
+            layer: int = None,
+            normalize: bool = True,
+            add_self_loops: bool = True,
+            negative_slope: float = 0.2,
+            heads: int = 1,
+            bias: bool = True,
+            mode: str = 'gcn',
+            share_weights_score: bool = False,
+            share_weights_value: bool = False,
+            **kwargs,
+    ):
+        assert share_weights_value  # TODO
+
+        kwargs.setdefault('aggr', 'add')
+        super().__init__(in_channels=channels, out_channels=channels // heads, heads=heads, negative_slope=negative_slope,
+                         add_self_loops=add_self_loops, bias=bias, mode=mode, share_weights_score=share_weights_score,
+                         share_weights_value=share_weights_value, **kwargs)
+        self.alpha = alpha
+        self.beta = 1.
+        if theta is not None or layer is not None:
+            assert theta is not None and layer is not None
+            self.beta = log(theta / layer + 1)
+        self.normalize = normalize
+        self.x_0 = None
+
+    def get_x_v(self, x):
+        return x
+
+    def forward(self, x: Union[Tensor, PairTensor], edge_index: Adj, size_target: int = None,
+                edge_weight: OptTensor = None, return_attention_info: bool = False):
+        assert not return_attention_info  # TODO
+        x_0 = x
+        if self.normalize:
+            if isinstance(edge_index, Tensor):
+                edge_index, edge_weight = gcn_norm(  # yapf: disable
+                    edge_index, edge_weight, x.size(self.node_dim), False,
+                    self.add_self_loops,  dtype=x.dtype)
+
+            elif isinstance(edge_index, SparseTensor):
+                edge_index = gcn_norm(  # yapf: disable
+                    edge_index, edge_weight, x.size(self.node_dim), False,
+                    self.add_self_loops, dtype=x.dtype)
+
+        self.x_0 = x_0
+        return super().forward(x, edge_index, size_target, edge_weight, return_attention_info)
+
+    def update_fn(self, x_agg, x_i):
+        x_0 = self.x_0
+        x_agg = self.merge_heads(x_agg)
+
+        x_agg.mul_(1 - self.alpha)
+        x_0 = self.alpha * x_0[:x_agg.size(0)]
+
+        x_agg = x_agg.add_(x_0)
+        x_agg = torch.addmm(x_agg, x_agg, self.lin_v.weight, beta=1. - self.beta, alpha=self.beta)
+
+        return x_agg
+

@@ -5,16 +5,20 @@ analysis:
 dataset:
   sparse: true
 model:
-  act: F.relu
-  dropout: 0.4628544157737705
-  input_layer: false
-  heads: 1
+  module: gat_gcn_v2
+  dropout: 0.5
+  heads: 2
+  n_hidden: 64
+  alpha: 0.4
+  theta: 0.1
+  layer: 1
   negative_slope: 0.2
+  input_layer: false
   norm_info: null
   output_layer: false
 training:
   criterion: metric
-  lr: 0.05
+  lr: 1e-2
+  weight_decay: 5e-4
   n_epochs: 200
   patience: null
-  weight_decay: 0.005
