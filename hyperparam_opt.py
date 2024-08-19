@@ -52,7 +52,7 @@ if __name__ == '__main__':
     experiment.config.trial_code_directory = '.'
     experiment.config.search_space_file = './config/_search_space/' + args.method + '.json'
     experiment.config.tuner.name = args.tuner
-    experiment.config.assessor.name = 'Curvefitting'
+    experiment.config.assessor.name = 'Medianstop'
     experiment.config.tuner.class_args['optimize_mode'] = 'maximize'
     experiment.config.max_trial_number = args.max_trial_number
     experiment.config.trial_concurrency = args.trial_concurrency
@@ -70,12 +70,12 @@ if __name__ == '__main__':
     print(opt_params)
 
     if args.update_config:
-        model_conf = load_conf(None, args.method, args.data)
+        model_conf = load_conf(None, args.method, args.dataset)
         for item in opt_params.keys():
             if item in ['lr', 'weight_decay']:
                 model_conf.training[item] = opt_params[item]
             else:
                 model_conf.model[item] = opt_params[item]
         model_conf = vars(model_conf)
-        save_conf(None, args.method, args.data, model_conf)
+        save_conf(None, args.method, args.dataset, model_conf)
     experiment.stop()
