@@ -3,7 +3,7 @@ from utils.tools import load_conf, save_conf
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data', type=str,
+parser.add_argument('--dataset', type=str,
                     default='cora',
                     choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho', 'dblp', 'blogcatalog', 'flickr'],
                     help='Select dataset')

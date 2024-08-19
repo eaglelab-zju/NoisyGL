@@ -39,13 +39,13 @@ def merge_params(model_conf):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data', type=str,
+parser.add_argument('--dataset', type=str,
                     default='cora',
                     choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
                              'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select dataset')
 parser.add_argument('--method', type=str,
-                    default='lcat',
+                    default='gcn',
                     choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward', 'lcat',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help="Select methods")
@@ -64,14 +64,13 @@ parser.add_argument('--seed', type=int,
 args = parser.parse_args()
 
 
-
 if __name__ == '__main__':
     print(args)
     data_path = './data/'
-    data_conf = load_conf('./config/_dataset/' + args.data + '.yaml')
+    data_conf = load_conf('./config/_dataset/' + args.dataset + '.yaml')
     if nni.get_trial_id() == "STANDALONE":
         setup_seed(args.seed)
-    data = Dataset(args.data, path=data_path,
+    data = Dataset(args.dataset, path=data_path,
                    feat_norm=data_conf.norm['feat_norm'], adj_norm=data_conf.norm['adj_norm'],
                    train_size=data_conf.split['train_size'],
                    val_size=data_conf.split['val_size'],
