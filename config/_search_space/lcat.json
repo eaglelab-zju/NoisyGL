@@ -1,4 +1,40 @@
 {
+  "dropout": {
+    "_type": "uniform",
+    "_value": [
+      0.1,
+      0.9
+    ]
+  },
+  "n_hidden": {
+    "_type": "choice",
+    "_value": [
+      16,
+      32,
+      64,
+      128
+    ]
+  },
+  "alpha": {
+    "_type": "choice",
+    "_value": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ]
+  },
+  "module": {
+    "_type": "choice",
+    "_value": [
+      "gat_gcn_v2",
+      "gat_gcn2_v2"
+    ]
+  },
   "heads": {
     "_type": "choice",
     "_value": [

@@ -23,7 +23,7 @@
   "n_hidden": {
     "_type": "choice",
     "_value": [
-      12,
+      16,
       32,
       64,
       128
