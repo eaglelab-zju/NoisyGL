@@ -74,8 +74,10 @@ parser.add_argument('--runs', type=int,
                     help="Number of experiments for each combination of method and data")
 parser.add_argument('--methods', type=str, nargs='+',
                     default=['gcn', 'smodel', 'coteaching', 'jocor', 'apl', 'sce', 'forward', 'backward'],
-                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching', 'apl', 'sce', 'forward', 'backward',
-                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
+                    choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching',
+                             'apl', 'sce', 'forward', 'backward', 'lcat', 'mlp',
+                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn',
+                             'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn'],
                     help='Select methods')
 parser.add_argument('--datasets', type=str, nargs='+',
                     default=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
