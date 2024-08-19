@@ -5,20 +5,20 @@ analysis:
 dataset:
   sparse: true
 model:
-  module: gat_gcn_v2
-  dropout: 0.5
-  heads: 2
-  n_hidden: 64
-  alpha: 0.4
-  theta: 0.1
-  layer: 1
-  negative_slope: 0.2
+  alpha: 0.7
+  dropout: 0.5120171717710084
+  heads: 4
   input_layer: false
+  layer: 1
+  module: gat_gcn_v2
+  n_hidden: 128
+  negative_slope: 0.10955110830050795
   norm_info: null
   output_layer: false
+  theta: 0.1
 training:
   criterion: metric
-  lr: 1e-2
-  weight_decay: 5e-4
+  lr: 0.01
   n_epochs: 200
   patience: null
+  weight_decay: 0.005
