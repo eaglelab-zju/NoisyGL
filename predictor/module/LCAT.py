@@ -280,6 +280,7 @@ class GATv2Layer(GeneralGATLayer):
 
 class GAT2v2Layer(GATv2Layer):
     x_0: OptTensor
+
     def __init__(
             self,
             channels: Union[int, Tuple[int, int]],
@@ -299,7 +300,8 @@ class GAT2v2Layer(GATv2Layer):
         assert share_weights_value  # TODO
 
         kwargs.setdefault('aggr', 'add')
-        super().__init__(in_channels=channels, out_channels=channels // heads, heads=heads, negative_slope=negative_slope,
+        super().__init__(in_channels=channels, out_channels=channels // heads, heads=heads,
+                         negative_slope=negative_slope,
                          add_self_loops=add_self_loops, bias=bias, mode=mode, share_weights_score=share_weights_score,
                          share_weights_value=share_weights_value, **kwargs)
         self.alpha = alpha
@@ -321,7 +323,7 @@ class GAT2v2Layer(GATv2Layer):
             if isinstance(edge_index, Tensor):
                 edge_index, edge_weight = gcn_norm(  # yapf: disable
                     edge_index, edge_weight, x.size(self.node_dim), False,
-                    self.add_self_loops,  dtype=x.dtype)
+                    self.add_self_loops, dtype=x.dtype)
 
             elif isinstance(edge_index, SparseTensor):
                 edge_index = gcn_norm(  # yapf: disable
@@ -343,3 +345,35 @@ class GAT2v2Layer(GATv2Layer):
 
         return x_agg
 
+
+class LCAT(nn.Module):
+    def __init__(self, in_channels, hidden_channels, out_channels, heads, alpha, theta, negative_slope, dropout=0.5,
+                 module="gat_gcn_v2"):
+        super().__init__()
+        self.input_lin = torch.nn.Linear(in_features=in_channels, out_features=hidden_channels)
+        self.dropout = dropout
+        if module == 'gat_gcn_v2':
+            self.GAT = GATv2Layer(in_channels=hidden_channels, out_channels=hidden_channels,
+                                  mode='lcat', heads=heads,
+                                  negative_slope=negative_slope)
+            self.output_lin = torch.nn.Linear(in_features=hidden_channels * heads,
+                                              out_features=out_channels)
+        elif module == 'gat_gcn2_v2':
+            self.GAT = GAT2v2Layer(channels=hidden_channels,
+                                   mode='lcat', heads=heads, alpha=alpha,
+                                   layer=1, theta=theta,
+                                   negative_slope=negative_slope,
+                                   share_weights_score=True, share_weights_value=True)
+            self.output_lin = torch.nn.Linear(in_features=hidden_channels,
+                                              out_features=out_channels)
+        else:
+            print("invalid module " + module)
+            exit(1)
+
+    def forward(self, features, adj):
+        input_feats = self.input_lin(features)
+        input_feats = F.dropout(input_feats, p=self.dropout, training=self.training)
+        output = self.GAT(x=input_feats, edge_index=adj)
+        output = F.dropout(output, p=self.dropout, training=self.training)
+        output = self.output_lin(output)
+        return output

@@ -34,19 +34,17 @@ class forward_Predictor(Predictor):
                                       weight_decay=conf.training['weight_decay'])
         self.C = np.zeros((self.n_classes, self.n_classes), dtype=float)
 
+
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = forward_correction_xentropy(output[mask], self.noisy_label[mask],
+                                               self.C, self.device, self.n_classes)
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
+
     def train(self):
-        '''
-        This is the common learning procedure, which is overwritten for special learning procedure.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        result : dict
-            A dict containing train, valid and test metrics.
-        '''
         best_pre_acc = 0
         for pre_epoch in range(self.conf.training['n_pre_epochs']):
             self.pre_model.train()
@@ -79,18 +77,19 @@ class forward_Predictor(Predictor):
             features, adj = self.feats, self.adj
 
             # forward and backward
-            output = self.model(features, adj)
+            # output = self.model(features, adj)
 
-            loss_train = forward_correction_xentropy(output[self.train_mask],  self.noisy_label[self.train_mask], self.C, self.device, self.n_classes)
+            # loss_train = forward_correction_xentropy(output[self.train_mask],
+            #                         self.noisy_label[self.train_mask], self.C, self.device, self.n_classes)
             # loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    output[self.train_mask].detach().cpu().numpy())
-
+            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                         output[self.train_mask].detach().cpu().numpy())
+            output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
             loss_train.backward()
             self.optim.step()
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -103,8 +102,7 @@ class forward_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
@@ -115,44 +113,44 @@ class forward_Predictor(Predictor):
             print('Optimization Finished!')
             print('Time(s): {:.4f}'.format(self.total_time))
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
-            heatmap(self.C, n_classes=self.n_classes, title="Backward")
+            # heatmap(self.C, n_classes=self.n_classes, title="Backward")
         return self.result
 
-    def evaluate(self, label, mask):
-        '''
-        This is the common evaluation procedure, which is overwritten for special evaluation procedure.
-
-        Parameters
-        ----------
-        label : torch.tensor
-        mask: torch.tensor
-
-        Returns
-        -------
-        loss : float
-            Evaluation loss.
-        metric : float
-            Evaluation metric.
-        '''
-        self.model.eval()
-        features, adj = self.feats, self.adj
-        with torch.no_grad():
-            output = self.model(features, adj)
-        logits = output[mask]
-        loss = forward_correction_xentropy(logits, label, self.C, self.device, self.n_classes)
-        return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
-
-    def test(self, mask):
-        '''
-        This is the common test procedure, which is overwritten for special test procedure.
-
-        Returns
-        -------
-        loss : float
-            Test loss.
-        metric : float
-            Test metric.
-        '''
-        self.model.load_state_dict(self.weights)
-        label = self.clean_label[mask]
-        return self.evaluate(label, mask)
+    # def evaluate(self, label, mask):
+    #     '''
+    #     This is the common evaluation procedure, which is overwritten for special evaluation procedure.
+    #
+    #     Parameters
+    #     ----------
+    #     label : torch.tensor
+    #     mask: torch.tensor
+    #
+    #     Returns
+    #     -------
+    #     loss : float
+    #         Evaluation loss.
+    #     metric : float
+    #         Evaluation metric.
+    #     '''
+    #     self.model.eval()
+    #     features, adj = self.feats, self.adj
+    #     with torch.no_grad():
+    #         output = self.model(features, adj)
+    #     logits = output[mask]
+    #     loss = forward_correction_xentropy(logits, label, self.C, self.device, self.n_classes)
+    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+    #
+    # def test(self, mask):
+    #     '''
+    #     This is the common test procedure, which is overwritten for special test procedure.
+    #
+    #     Returns
+    #     -------
+    #     loss : float
+    #         Test loss.
+    #     metric : float
+    #         Test metric.
+    #     '''
+    #     self.model.load_state_dict(self.weights)
+    #     label = self.clean_label[mask]
+    #     return self.evaluate(label, mask)

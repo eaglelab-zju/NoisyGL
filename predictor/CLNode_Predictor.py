@@ -31,8 +31,17 @@ class clnode_Predictor(Predictor):
         self.optim = torch.optim.Adam(self.model.parameters(),
                                       lr=self.conf.training['lr'], weight_decay=self.conf.training['weight_decay'])
 
+
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = F.nll_loss(output[mask], self.noisy_label[mask])
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
+
     def train(self):
-        feature = self.feats
+        features = self.feats
         adj = self.adj
         pre_weight = None
         best_pre_val_acc = 0
@@ -40,13 +49,13 @@ class clnode_Predictor(Predictor):
         for pre_epoch in range(self.conf.training['n_pre_epochs']):
             self.pre_model.train()
             self.pre_optim.zero_grad()
-            _, out = self.pre_model(feature, adj)
+            _, out = self.pre_model(features, adj)
             loss = F.nll_loss(out[self.train_mask], self.noisy_label[self.train_mask])
             loss.backward()
             self.pre_optim.step()
 
             self.pre_model.eval()
-            _, out = self.pre_model(feature, adj)
+            _, out = self.pre_model(features, adj)
             _, pred = out.max(dim=1)
             correct = int(pred[self.val_mask].eq(self.noisy_label[self.val_mask]).sum().item())
             acc_val = correct / int(self.val_mask.shape[0])
@@ -55,7 +64,7 @@ class clnode_Predictor(Predictor):
 
         self.pre_model.eval()
         self.pre_model.load_state_dict(pre_weight)
-        embedding, out = self.pre_model(feature, adj)
+        embedding, out = self.pre_model(features, adj)
         _, pred = out.max(dim=1)
         pred_label = copy.deepcopy(pred)
         pred_label[self.train_mask] = self.noisy_label[self.train_mask]
@@ -83,27 +92,18 @@ class clnode_Predictor(Predictor):
             batch_id = sorted_trainset_id[:int(size * sorted_trainset_id.shape[0])]
             batch_indices = sorted_trainset_indices[:int(size * sorted_trainset_indices.shape[0])]
 
-            output = self.model(feature, adj)
-            loss_train = F.nll_loss(output[batch_id], self.noisy_label[batch_id])
+            # output = self.model(features, adj)
+            # loss_train = F.nll_loss(output[batch_id], self.noisy_label[batch_id])
+            output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, batch_id)
 
             loss_train.backward()
             self.optim.step()
 
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    output[self.train_mask].detach().cpu().numpy())
-            '''
-             # forward and backward
-            output = self.model(self.input_distributor())
+            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                         output[self.train_mask].detach().cpu().numpy())
 
-            loss_train = self.loss_fn(output[self.noisy_train_mask], self.noisy_train_label)
-            acc_train = self.metric(self.noisy_train_label.cpu().numpy(),
-                                    output[self.noisy_train_mask].detach().cpu().numpy())
-
-            loss_train.backward()
-            self.optim.step()
-            '''
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -116,8 +116,7 @@ class clnode_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

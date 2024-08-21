@@ -34,6 +34,20 @@ class jocor_Predictor(Predictor):
         self.rate_schedule[:conf.model['num_gradual']] = np.linspace(0, self.forget_rate ** conf.model['exponent'], conf.model['num_gradual'])
         self.co_lambda = conf.model['co_lambda']
 
+    def get_prediction(self, features, adj, label=None, mask=None, epoch=None):
+        if epoch is None:
+            epoch = self.conf.training['n_epochs'] - 1
+        output1 = self.model1(features, adj)
+        output2 = self.model2(features, adj)
+        logits1 = output1[mask]
+        logits2 = output2[mask]
+
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = self.loss_fn(logits1, logits2, label[mask], self.rate_schedule[epoch], self.co_lambda)
+            acc = self.metric(label[mask].cpu().numpy(), output1[mask].detach().cpu().numpy())
+        return output1, loss, acc
+
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
             improve = ''
@@ -41,24 +55,26 @@ class jocor_Predictor(Predictor):
             self.model1.train()
             self.model2.train()
             self.optim.zero_grad()
-            feature, adj = self.feats, self.adj
+            features, adj = self.feats, self.adj
 
             # forward and backward
-            output1 = self.model1(feature, adj)
-            output2 = self.model2(feature, adj)
-            logits1 = output1[self.train_mask]
-            logits2 = output2[self.train_mask]
-            labels = self.noisy_label[self.train_mask]
+            # output1 = self.model1(feature, adj)
+            # output2 = self.model2(feature, adj)
+            # logits1 = output1[self.train_mask]
+            # logits2 = output2[self.train_mask]
+            # labels = self.noisy_label[self.train_mask]
+            #
+            # loss_train = self.loss_fn(logits1, logits2, labels, self.rate_schedule[epoch], self.co_lambda)
 
-            loss_train = self.loss_fn(logits1, logits2, labels, self.rate_schedule[epoch], self.co_lambda)
+            output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask, epoch)
             loss_train.backward()
             self.optim.step()
 
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    output1[self.train_mask].detach().cpu().numpy())
+            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                         output1[self.train_mask].detach().cpu().numpy())
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -71,8 +87,7 @@ class jocor_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
@@ -88,19 +103,15 @@ class jocor_Predictor(Predictor):
     def evaluate(self, label, mask):
         self.model1.eval()
         self.model2.eval()
-        feature, adj = self.feats, self.adj
+        features, adj = self.feats, self.adj
         with torch.no_grad():
-            output1 = self.model1(feature, adj)
-            output2 = self.model2(feature, adj)
-        logits1 = output1[mask]
-        logits2 = output2[mask]
-        loss = self.loss_fn(logits1, logits2, label, 0, co_lambda=self.co_lambda)
-        return loss, self.metric(label.cpu().numpy(), logits1.detach().cpu().numpy())
+            _, loss, acc = self.get_prediction(features, adj, label, mask)
+        return loss, acc
 
     def test(self, mask):
         if self.weights is not None:
             self.model1.load_state_dict(self.weights)
-        label = self.clean_label[mask]
+        label = self.clean_label
         return self.evaluate(label, mask)
 
 

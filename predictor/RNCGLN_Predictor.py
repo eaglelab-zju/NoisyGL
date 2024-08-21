@@ -29,6 +29,15 @@ class rncgln_Predictor(Predictor):
         self.P_sel = conf.model['P_sel']
         self.P_gra_sel = conf.model['P_gra_sel']
 
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output, _ = self.model(features)
+        if (label is not None) and (mask is not None):
+            loss = self.loss_fn(output[mask], label[mask])
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        else:
+            loss, acc = None, None
+        return output, loss, acc
+
     def train(self):
         features, adj = self.feats, self.adj
         ones = torch.sparse.torch.eye(self.n_classes).to(self.device)
@@ -57,7 +66,7 @@ class rncgln_Predictor(Predictor):
             acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
                                     embeds_tra[self.train_mask].detach().cpu().numpy())
 
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
 
             if flag:
@@ -107,8 +116,7 @@ class rncgln_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
@@ -121,11 +129,11 @@ class rncgln_Predictor(Predictor):
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
         return self.result
 
-    def evaluate(self, label, mask):
-        self.model.eval()
-        features, adj = self.feats, self.adj
-        with torch.no_grad():
-            output, _ = self.model(features)
-        logits = output[mask]
-        loss = self.loss_fn(logits, label)
-        return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+    # def evaluate(self, label, mask):
+    #     self.model.eval()
+    #     features, adj = self.feats, self.adj
+    #     with torch.no_grad():
+    #         output, _ = self.model(features)
+    #     logits = output[mask]
+    #     loss = self.loss_fn(logits, label)
+    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())

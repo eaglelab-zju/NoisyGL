@@ -25,6 +25,13 @@ class unionnet_Predictor(Predictor):
         self.beta = conf.model['beta']
         self.kldiv = torch.nn.KLDivLoss()
 
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = self.loss_fn(output[mask], label[mask])
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
 
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
@@ -56,7 +63,7 @@ class unionnet_Predictor(Predictor):
             self.optim.step()
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -69,8 +76,7 @@ class unionnet_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

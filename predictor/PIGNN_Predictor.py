@@ -33,6 +33,14 @@ class pignn_Predictor(Predictor):
             lr=self.conf.training['lr'],
             weight_decay=self.conf.training['weight_decay'])
 
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output, output_product = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = F.nll_loss(output[mask], label[mask])
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
+
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
             improve = ''
@@ -44,9 +52,8 @@ class pignn_Predictor(Predictor):
             features, adj = self.feats, self.adj
             labels_context = adj.to_dense() + torch.eye(adj.shape[0]).to(adj.device)
             data_context = torch.ones(self.edge_index.shape[1])
-            output, output_product = self.model(features, adj)
+
             out_mi, out_product_mi = self.model_mi(features, adj)
-            loss_train = F.nll_loss(output[self.train_mask], self.noisy_label[self.train_mask])
             norm = self.n_nodes * self.n_nodes / float((self.n_nodes * self.n_nodes - data_context.shape[0]) * 2)
             pos_weight = torch.Tensor(
                 [float(self.n_nodes * self.n_nodes - data_context.shape[0]) / data_context.shape[0]]).to(self.device)
@@ -62,6 +69,8 @@ class pignn_Predictor(Predictor):
             mask[neg_position] = 1 - torch.sigmoid(out_product_mi).view(-1)[neg_position]
             mask = mask.view(labels_context.size(0), labels_context.size(1))
 
+            output, output_product = self.model(features, adj)
+            loss_train = F.nll_loss(output[self.train_mask], self.noisy_label[self.train_mask])
             if epoch > self.conf.training['start_epoch']:
                 loss_context = norm * (F.binary_cross_entropy_with_logits(
                     output_product, labels_context, pos_weight=pos_weight, reduction='none') * mask.detach()).mean()
@@ -72,13 +81,11 @@ class pignn_Predictor(Predictor):
             loss_train.backward()
             self.optim.step()
 
-            self.model.eval()
-
             acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
                                     output[self.train_mask].detach().cpu().numpy())
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -91,8 +98,7 @@ class pignn_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
@@ -105,11 +111,17 @@ class pignn_Predictor(Predictor):
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
         return self.result
 
-    def evaluate(self, label, mask):
-        self.model.eval()
-        features, adj = self.feats, self.adj
-        with torch.no_grad():
-            output, _ = self.model(features, adj)
-        logits = output[mask]
-        loss = self.loss_fn(logits, label)
-        return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+    # def evaluate(self, label, mask):
+    #     self.model.eval()
+    #     features, adj = self.feats, self.adj
+    #     with torch.no_grad():
+    #         output, _ = self.model(features, adj)
+    #     logits = output[mask]
+    #     loss = self.loss_fn(logits, label)
+    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+    #
+    # def test(self, mask):
+    #     if self.weights is not None:
+    #         self.model.load_state_dict(self.weights)
+    #     label = self.clean_label
+    #     return self.evaluate(label[mask], mask)

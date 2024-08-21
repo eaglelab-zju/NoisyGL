@@ -43,11 +43,21 @@ class Predictor:
         '''
         This sets module and other members, which is overwritten for each method.
         '''
+        self.model = None
+        self.optim = None
         return None
+
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = self.loss_fn(output[mask], label[mask])
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
 
     def train(self):
         '''
-        This is the common learning procedure, which is overwritten for special learning procedure.
+        This is the common training procedure, which is overwritten for special learning procedure.
 
         Parameters
         ----------
@@ -66,17 +76,18 @@ class Predictor:
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
             # forward and backward
-            output = self.model(features, adj)
+            # output = self.model(features, adj)
+            # loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
 
-            loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    output[self.train_mask].detach().cpu().numpy())
+            output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
+            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                         output[self.train_mask].detach().cpu().numpy())
 
             loss_train.backward()
             self.optim.step()
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -89,8 +100,7 @@ class Predictor:
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
@@ -122,10 +132,8 @@ class Predictor:
         self.model.eval()
         features, adj = self.feats, self.adj
         with torch.no_grad():
-            output = self.model(features, adj)
-        logits = output[mask]
-        loss = self.loss_fn(logits, label)
-        return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+            _, loss, acc = self.get_prediction(features, adj, label, mask)
+        return loss, acc
 
     def test(self, mask):
         '''
@@ -140,7 +148,7 @@ class Predictor:
         '''
         if self.weights is not None:
             self.model.load_state_dict(self.weights)
-        label = self.clean_label[mask]
+        label = self.clean_label
         return self.evaluate(label, mask)
 
 

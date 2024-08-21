@@ -43,6 +43,69 @@ class rtgnn_Predictor(Predictor):
                                 lr=self.conf.training['lr'],
                                 weight_decay=self.conf.training['weight_decay'])
 
+    def get_prediction(self, features, adj, label=None, mask=None, pred_edge_index=None, predictor_weights=None, epoch=0):
+        loss, acc = None, None
+        edge_index = self.edge_index
+        if (label is not None) and (mask is not None):
+            if pred_edge_index is None:
+                # train call
+                representations, rec_loss = self.estimator(features, adj)
+                pred_edge_index = torch.cat([edge_index, self.pred_edge_index], dim=1)
+                origin_w = torch.cat([torch.ones(edge_index.shape[1]), torch.zeros(self.pred_edge_index.shape[1])]).to(
+                    self.device)
+
+                predictor_weights, _ = self.estimator.get_estimated_weigths(pred_edge_index, representations, origin_w)
+                edge_remain_idx = torch.where(predictor_weights != 0)[0].detach()
+
+                # use detach method so that the code can run on pytorch 2.0+
+                predictor_weights = predictor_weights[edge_remain_idx].detach()
+                pred_edge_index = pred_edge_index[:, edge_remain_idx]
+
+                output_0, output_1 = self.predictor(features, pred_edge_index, predictor_weights)
+
+                pred = F.softmax(output_0, dim=1).detach()
+                pred1 = F.softmax(output_1, dim=1).detach()
+
+                self.idx_add = self.get_pseudo_label(pred, pred1)
+
+                if epoch == 0:
+                    loss_pred = (F.cross_entropy(output_0[mask], label[mask]) +
+                                 F.cross_entropy(output_1[mask], label[mask]))
+                else:
+                    loss_pred = self.criterion(output_0[mask], output_1[mask],
+                                               label[mask],
+                                               co_lambda=self.conf.model['co_lambda'], epoch=epoch)
+
+                if len(self.idx_add) != 0:
+                    loss_add = self.criterion_pse(output_0, output_1, self.idx_add,
+                                                  co_lambda=self.conf.model['co_lambda'])
+                else:
+                    loss_add = torch.Tensor([0]).to(self.device)
+
+                neighbor_kl_loss = self.intra_reg(output_0, output_1,
+                                                  torch.tensor(mask).to(self.device),
+                                                  pred_edge_index,
+                                                  predictor_weights)
+                loss = (loss_pred + self.conf.model['alpha'] * rec_loss + loss_add +
+                        self.conf.model['co_lambda'] * neighbor_kl_loss)
+                acc_pred_0 = self.metric(label[mask].cpu().numpy(), output_0[mask].detach().cpu().numpy())
+                acc_pred_1 = self.metric(label[mask].cpu().numpy(), output_1[mask].detach().cpu().numpy())
+                acc = (acc_pred_0 + acc_pred_1) * 0.5
+                return output_0, loss, acc, predictor_weights, pred_edge_index, pred
+            else:
+                # evaluate call
+                output_0, output_1 = self.predictor(features, pred_edge_index, predictor_weights)
+                loss = (F.cross_entropy(output_0[mask], label[mask]) + F.cross_entropy(output_1[mask], label[mask]))
+                acc_pred_0 = self.metric(label[mask].cpu().numpy(), output_0[mask].detach().cpu().numpy())
+                acc_pred_1 = self.metric(label[mask].cpu().numpy(), output_1[mask].detach().cpu().numpy())
+                acc = (acc_pred_0 + acc_pred_1) * 0.5
+        else:
+            # direct output
+            predictor_weights = self.best_pred_graph
+            pred_edge_index = self.best_edge_idx
+            output_0, output_1 = self.predictor(features, pred_edge_index, predictor_weights)
+        return output_0, loss, acc
+
     def train(self):
         for epoch in range(self.conf.training['n_epochs']):
             improve = ''
@@ -50,60 +113,65 @@ class rtgnn_Predictor(Predictor):
             self.predictor.train()
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
-            edge_index = self.edge_index
+            # edge_index = self.edge_index
+            #
+            # representations, rec_loss = self.estimator(features, adj)
+            # pred_edge_index = torch.cat([edge_index, self.pred_edge_index], dim=1)
+            # origin_w = torch.cat([torch.ones(edge_index.shape[1]), torch.zeros(self.pred_edge_index.shape[1])]).to(
+            #     self.device)
+            #
+            # predictor_weights, _ = self.estimator.get_estimated_weigths(pred_edge_index, representations, origin_w)
+            # edge_remain_idx = torch.where(predictor_weights != 0)[0].detach()
+            #
+            # # use detach option so that the code can run on pytorch 2.0+
+            # predictor_weights = predictor_weights[edge_remain_idx].detach()
+            # pred_edge_index = pred_edge_index[:, edge_remain_idx]
+            #
+            # log_pred_0, log_pred_1 = self.predictor(features, pred_edge_index, predictor_weights)
+            #
+            # pred = F.softmax(log_pred_0, dim=1).detach()
+            # pred1 = F.softmax(log_pred_1, dim=1).detach()
+            #
+            # self.idx_add = self.get_pseudo_label(pred, pred1)
+            #
+            # if epoch == 0:
+            #     loss_pred = (F.cross_entropy(log_pred_0[self.train_mask], self.noisy_label[self.train_mask]) +
+            #                  F.cross_entropy(log_pred_1[self.train_mask], self.noisy_label[self.train_mask]))
+            # else:
+            #     loss_pred = self.criterion(log_pred_0[self.train_mask], log_pred_1[self.train_mask],
+            #                                self.noisy_label[self.train_mask],
+            #                                co_lambda=self.conf.model['co_lambda'], epoch=epoch)
+            #
+            # if len(self.idx_add) != 0:
+            #     loss_add = self.criterion_pse(log_pred_0, log_pred_1, self.idx_add,
+            #                                   co_lambda=self.conf.model['co_lambda'])
+            # else:
+            #     loss_add = torch.Tensor([0]).to(self.device)
+            #
+            # neighbor_kl_loss = self.intra_reg(log_pred_0, log_pred_1,
+            #                                   torch.tensor(self.train_mask).to(self.device),
+            #                                   pred_edge_index,
+            #                                   predictor_weights)
+            # total_loss = (loss_pred + self.conf.model['alpha'] * rec_loss + loss_add +
+            #               self.conf.model['co_lambda'] * (neighbor_kl_loss))
+            #
+            # total_loss.backward()
 
-            representations, rec_loss = self.estimator(features, adj)
-            pred_edge_index = torch.cat([edge_index, self.pred_edge_index], dim=1)
-            origin_w = torch.cat([torch.ones(edge_index.shape[1]), torch.zeros(self.pred_edge_index.shape[1])]).to(
-                self.device)
 
-            predictor_weights, _ = self.estimator.get_estimated_weigths(pred_edge_index, representations, origin_w)
-            edge_remain_idx = torch.where(predictor_weights != 0)[0].detach()
 
-            # use detach option so that the code can run on pytorch 2.0+
-            predictor_weights = predictor_weights[edge_remain_idx].detach()
-            pred_edge_index = pred_edge_index[:, edge_remain_idx]
 
-            log_pred_0, log_pred_1 = self.predictor(features, pred_edge_index, predictor_weights)
+            # acc_pred_train_0 = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                                log_pred_0[self.train_mask].detach().cpu().numpy())
+            # acc_pred_train_1 = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                                log_pred_1[self.train_mask].detach().cpu().numpy())
 
-            pred = F.softmax(log_pred_0, dim=1).detach()
-            pred1 = F.softmax(log_pred_1, dim=1).detach()
+            # acc_train = (acc_pred_train_0 + acc_pred_train_1) * 0.5
 
-            self.idx_add = self.get_pseudo_label(pred, pred1)
-
-            if epoch == 0:
-                loss_pred = (F.cross_entropy(log_pred_0[self.train_mask], self.noisy_label[self.train_mask]) +
-                             F.cross_entropy(log_pred_1[self.train_mask], self.noisy_label[self.train_mask]))
-            else:
-                loss_pred = self.criterion(log_pred_0[self.train_mask], log_pred_1[self.train_mask],
-                                           self.noisy_label[self.train_mask],
-                                           co_lambda=self.conf.model['co_lambda'], epoch=epoch)
-
-            if len(self.idx_add) != 0:
-                loss_add = self.criterion_pse(log_pred_0, log_pred_1, self.idx_add,
-                                              co_lambda=self.conf.model['co_lambda'])
-            else:
-                loss_add = torch.Tensor([0]).to(self.device)
-
-            neighbor_kl_loss = self.intra_reg(log_pred_0, log_pred_1,
-                                              torch.tensor(self.train_mask).to(self.device),
-                                              pred_edge_index,
-                                              predictor_weights)
-            total_loss = (loss_pred + self.conf.model['alpha'] * rec_loss + loss_add +
-                          self.conf.model['co_lambda'] * (neighbor_kl_loss))
-
-            total_loss.backward()
+            _, loss_train, acc_train, predictor_weights, pred_edge_index, pred = (
+                self.get_prediction(features, adj, self.noisy_label, self.train_mask, epoch=epoch))
+            loss_train.backward()
             self.optim.step()
-
-            acc_pred_train_0 = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                           log_pred_0[self.train_mask].detach().cpu().numpy())
-            acc_pred_train_1 = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                           log_pred_1[self.train_mask].detach().cpu().numpy())
-
-            acc_train = (acc_pred_train_0 + acc_pred_train_1) * 0.5
-
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask,
-                                              pred_edge_index, predictor_weights)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask, pred_edge_index, predictor_weights)
 
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
@@ -122,11 +190,10 @@ class rtgnn_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
-                        epoch + 1, time.time() - t0, total_loss.item(), acc_train, loss_val, acc_val, improve))
+                        epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
 
         loss_test, acc_test = self.test(self.test_mask)
         self.result['test'] = acc_test
@@ -136,40 +203,27 @@ class rtgnn_Predictor(Predictor):
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
         return self.result
 
-    def evaluate(self, label, mask, pred_edge_index=None, estimated_weights=None):
+    def evaluate(self, label, mask, pred_edge_index=None, predictor_weights=None):
         if pred_edge_index is None:
-            estimated_weights = self.best_pred_graph
+            predictor_weights = self.best_pred_graph
             pred_edge_index = self.best_edge_idx
         self.predictor.eval()
         features = self.feats
-        output_0, output_1 = self.predictor(features, pred_edge_index, estimated_weights)
-        loss = (F.cross_entropy(output_0[mask], label) + F.cross_entropy(output_1[mask], label))
-        acc_pred_0 = self.metric(label.cpu().numpy(), output_0[mask].detach().cpu().numpy())
-        acc_pred_1 = self.metric(label.cpu().numpy(), output_1[mask].detach().cpu().numpy())
-        acc_val = 0.5 * (acc_pred_0 + acc_pred_1)
-        return loss, acc_val
+        adj = self.adj
+        _, loss, acc, = self.get_prediction(features, adj, label, mask, pred_edge_index, predictor_weights)
+        # output_0, output_1 = self.predictor(features, pred_edge_index, predictor_weights)
+        # loss = (F.cross_entropy(output_0[mask], label[mask]) + F.cross_entropy(output_1[mask], label[mask]))
+        # acc_pred_0 = self.metric(label[mask].cpu().numpy(), output_0[mask].detach().cpu().numpy())
+        # acc_pred_1 = self.metric(label[mask].cpu().numpy(), output_1[mask].detach().cpu().numpy())
+        # acc_val = 0.5 * (acc_pred_0 + acc_pred_1)
+        return loss, acc
 
     def test(self, mask):
         estimated_weights = self.best_pred_graph
         pred_edge_index = self.best_edge_idx
         if self.predictor_model_weigths is not None:
             self.predictor.load_state_dict(self.predictor_model_weigths)
-        loss_test, acc_pred_test = self.evaluate(self.clean_label[mask], mask, pred_edge_index, estimated_weights)
-        '''
-        self.predictor.eval()
-        self.predictor.load_state_dict(self.predictor_model_weigths)
-        features = self.feats
-        estimated_weights = self.best_pred_graph
-        pred_edge_index = self.best_edge_idx
-        output_0, output_1 = self.predictor(features, pred_edge_index, estimated_weights)
-        acc_pred_test_0 = self.metric(self.clean_label[self.test_mask].cpu().numpy(),
-                                      output_0[self.test_mask].detach().cpu().numpy())
-        acc_pred_test_1 = self.metric(self.clean_label[self.test_mask].cpu().numpy(),
-                                      output_1[self.test_mask].detach().cpu().numpy())
-        acc_pred_test = 0.5 * (acc_pred_test_0 + acc_pred_test_1)
-        loss_test = (F.cross_entropy(output_0[self.test_mask], self.clean_label[self.test_mask]) +
-                     F.cross_entropy(output_1[self.test_mask], self.clean_label[self.test_mask]))
-        '''
+        loss_test, acc_pred_test = self.evaluate(self.clean_label, mask, pred_edge_index, estimated_weights)
         return loss_test, acc_pred_test
 
     def KNN(self, edge_index, features, K, idx_train):

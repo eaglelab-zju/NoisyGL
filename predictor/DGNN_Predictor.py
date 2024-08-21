@@ -5,6 +5,7 @@ import time
 import torch
 from copy import deepcopy
 import nni
+import numpy as np
 
 
 class dgnn_Predictor(Predictor):
@@ -30,6 +31,15 @@ class dgnn_Predictor(Predictor):
                          train_eps=conf.model['train_eps']).to(self.device)
         self.optim = torch.optim.Adam(self.model.parameters(), lr=conf.training['lr'],
                                       weight_decay=conf.training['weight_decay'])
+        self.C = np.zeros((self.n_classes, self.n_classes), dtype=float)
+
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss = backward_correction(output[mask], self.noisy_label[mask], self.C)
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
 
     def train(self):
         '''
@@ -66,7 +76,7 @@ class dgnn_Predictor(Predictor):
                 print("pre_Epoch {:05d} | pre_Loss(train) {:.4f} | pre_Acc(train) {:.4f} | ".format(
                         pre_epoch + 1, loss_train.item(), acc_train))
         self.pre_model.load_state_dict(pre_weight)
-        C = estimate_C(model=self.pre_model, x=features, adj=adj, n_classes=self.n_classes)
+        self.C = estimate_C(model=self.pre_model, x=features, adj=adj, n_classes=self.n_classes)
 
         for epoch in range(self.conf.training['n_epochs']):
             improve = ''
@@ -76,19 +86,17 @@ class dgnn_Predictor(Predictor):
             features, adj = self.feats, self.adj
 
             # forward and backward
-            output = self.model(features, adj)
+            # output = self.model(features, adj)
 
-
-            loss_train = backward_correction(output[self.train_mask], self.noisy_label[self.train_mask], C)
-            # loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    output[self.train_mask].detach().cpu().numpy())
-
+            # loss_train = backward_correction(output[self.train_mask], self.noisy_label[self.train_mask], C)
+            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+            #                         output[self.train_mask].detach().cpu().numpy())
+            output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
             loss_train.backward()
             self.optim.step()
 
             # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+            loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
             if flag:
                 improve = '*'
@@ -101,8 +109,7 @@ class dgnn_Predictor(Predictor):
                 break
 
             if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
+                nni.report_intermediate_result(acc_val)
                 print(
                     "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
                         epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))

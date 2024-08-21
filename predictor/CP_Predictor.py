@@ -70,60 +70,72 @@ class cp_Predictor(Predictor):
             print("Community detection finished")
         return community_labels
 
-    def train(self):
-        for epoch in range(self.conf.training['n_epochs']):
-            improve = ''
-            t0 = time.time()
-            self.model.train()
-            self.optim.zero_grad()
-            features, adj = self.feats, self.adj
-
-            # forward and backward
-            pred, pred_cluster = self.model(features, adj)
-            loss_pred = self.loss_fn(pred[self.train_mask], self.noisy_label[self.train_mask])
-            loss_cluster = self.loss_fn(pred_cluster[self.train_mask],
+    def get_prediction(self, features, adj, label=None, mask=None):
+        output, output_cluster = self.model(features, adj)
+        loss, acc = None, None
+        if (label is not None) and (mask is not None):
+            loss_output = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
+            loss_cluster = self.loss_fn(output_cluster[self.train_mask],
                                         self.community_labels[self.train_mask])
+            loss = loss_output + self.conf.model['lam'] * loss_cluster
+            acc = self.metric(label[mask].cpu().numpy(), output[mask].detach().cpu().numpy())
+        return output, loss, acc
 
-            loss_train = loss_pred + self.conf.model['lam'] * loss_cluster
-            loss_train.backward()
-            self.optim.step()
+    # def train(self):
+    #     for epoch in range(self.conf.training['n_epochs']):
+    #         improve = ''
+    #         t0 = time.time()
+    #         self.model.train()
+    #         self.optim.zero_grad()
+    #         features, adj = self.feats, self.adj
+    #
+    #         # forward and backward
+    #         # pred, pred_cluster = self.model(features, adj)
+    #         # loss_pred = self.loss_fn(pred[self.train_mask], self.noisy_label[self.train_mask])
+    #         # loss_cluster = self.loss_fn(pred_cluster[self.train_mask],
+    #         #                             self.community_labels[self.train_mask])
+    #         #
+    #         # loss_train = loss_pred + self.conf.model['lam'] * loss_cluster
+    #         output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
+    #         loss_train.backward()
+    #         self.optim.step()
+    #
+    #         # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
+    #         #                         pred[self.train_mask].detach().cpu().numpy())
+    #
+    #         # Evaluate
+    #         loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
+    #         flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
+    #         if flag:
+    #             improve = '*'
+    #             self.total_time = time.time() - self.start_time
+    #             self.best_val_loss = loss_val
+    #             self.result['valid'] = acc_val
+    #             self.result['train'] = acc_train
+    #             self.weights = deepcopy(self.model.state_dict())
+    #         elif flag_earlystop:
+    #             break
+    #
+    #         if self.conf.training['debug']:
+    #             loss_test, acc_test = self.test(self.test_mask)
+    #             nni.report_intermediate_result(acc_test)
+    #             print(
+    #                 "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
+    #                     epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
+    #
+    #     loss_test, acc_test = self.test(self.test_mask)
+    #     self.result['test'] = acc_test
+    #     if self.conf.training['debug']:
+    #         print('Optimization Finished!')
+    #         print('Time(s): {:.4f}'.format(self.total_time))
+    #         print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
+    #     return self.result
 
-            acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-                                    pred[self.train_mask].detach().cpu().numpy())
-
-            # Evaluate
-            loss_val, acc_val = self.evaluate(self.noisy_label[self.val_mask], self.val_mask)
-            flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
-            if flag:
-                improve = '*'
-                self.total_time = time.time() - self.start_time
-                self.best_val_loss = loss_val
-                self.result['valid'] = acc_val
-                self.result['train'] = acc_train
-                self.weights = deepcopy(self.model.state_dict())
-            elif flag_earlystop:
-                break
-
-            if self.conf.training['debug']:
-                loss_test, acc_test = self.test(self.test_mask)
-                nni.report_intermediate_result(acc_test)
-                print(
-                    "Epoch {:05d} | Time(s) {:.4f} | Loss(train) {:.4f} | Acc(train) {:.4f} | Loss(val) {:.4f} | Acc(val) {:.4f} | {}".format(
-                        epoch + 1, time.time() - t0, loss_train.item(), acc_train, loss_val, acc_val, improve))
-
-        loss_test, acc_test = self.test(self.test_mask)
-        self.result['test'] = acc_test
-        if self.conf.training['debug']:
-            print('Optimization Finished!')
-            print('Time(s): {:.4f}'.format(self.total_time))
-            print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
-        return self.result
-
-    def evaluate(self, label, mask):
-        self.model.eval()
-        features, adj = self.feats, self.adj
-        with torch.no_grad():
-            output, _ = self.model(features, adj)
-        logits = output[mask]
-        loss = self.loss_fn(logits, label)
-        return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
+    # def evaluate(self, label, mask):
+    #     self.model.eval()
+    #     features, adj = self.feats, self.adj
+    #     with torch.no_grad():
+    #         output, _ = self.model(features, adj)
+    #     logits = output[mask]
+    #     loss = self.loss_fn(logits, label)
+    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
