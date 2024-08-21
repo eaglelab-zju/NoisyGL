@@ -77,17 +77,9 @@ class forward_Predictor(Predictor):
             features, adj = self.feats, self.adj
 
             # forward and backward
-            # output = self.model(features, adj)
-
-            # loss_train = forward_correction_xentropy(output[self.train_mask],
-            #                         self.noisy_label[self.train_mask], self.C, self.device, self.n_classes)
-            # loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output[self.train_mask].detach().cpu().numpy())
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
             loss_train.backward()
             self.optim.step()
-
             # Evaluate
             loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
             flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
@@ -115,42 +107,3 @@ class forward_Predictor(Predictor):
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
             # heatmap(self.C, n_classes=self.n_classes, title="Backward")
         return self.result
-
-    # def evaluate(self, label, mask):
-    #     '''
-    #     This is the common evaluation procedure, which is overwritten for special evaluation procedure.
-    #
-    #     Parameters
-    #     ----------
-    #     label : torch.tensor
-    #     mask: torch.tensor
-    #
-    #     Returns
-    #     -------
-    #     loss : float
-    #         Evaluation loss.
-    #     metric : float
-    #         Evaluation metric.
-    #     '''
-    #     self.model.eval()
-    #     features, adj = self.feats, self.adj
-    #     with torch.no_grad():
-    #         output = self.model(features, adj)
-    #     logits = output[mask]
-    #     loss = forward_correction_xentropy(logits, label, self.C, self.device, self.n_classes)
-    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
-    #
-    # def test(self, mask):
-    #     '''
-    #     This is the common test procedure, which is overwritten for special test procedure.
-    #
-    #     Returns
-    #     -------
-    #     loss : float
-    #         Test loss.
-    #     metric : float
-    #         Test metric.
-    #     '''
-    #     self.model.load_state_dict(self.weights)
-    #     label = self.clean_label[mask]
-    #     return self.evaluate(label, mask)

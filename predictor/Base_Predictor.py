@@ -76,13 +76,7 @@ class Predictor:
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
             # forward and backward
-            # output = self.model(features, adj)
-            # loss_train = self.loss_fn(output[self.train_mask], self.noisy_label[self.train_mask])
-
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output[self.train_mask].detach().cpu().numpy())
-
             loss_train.backward()
             self.optim.step()
 

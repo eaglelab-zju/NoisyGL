@@ -51,32 +51,8 @@ class coteaching_Predictor(Predictor):
             self.model.train()
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
-
-            # forward and backward
-            # output1, output2 = self.model(feature, adj)
-            #
-            # pred_1 = output1[self.train_mask].max(1)[1]
-            # pred_2 = output2[self.train_mask].max(1)[1]
-            #
-            # disagree = (pred_1 != pred_2).cpu().numpy()
-            # idx_update = self.train_mask[disagree]
-            #
-            # # if len(idx_update) == 0: break
-            #
-            # k = int((1 - min(epoch * self.noise_rate / self.ek, self.noise_rate)) * len(idx_update))
-            # loss_1 = F.cross_entropy(output1[idx_update], self.noisy_label[self.train_mask][disagree], reduction='none')
-            # loss_2 = F.cross_entropy(output2[idx_update], self.noisy_label[self.train_mask][disagree], reduction='none')
-            #
-            # _, topk_1 = torch.topk(loss_1, k, largest=False)
-            # _, topk_2 = torch.topk(loss_2, k, largest=False)
-            #
-            # loss_train = loss_1[topk_2].mean() + loss_2[topk_1].mean()
-
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask, epoch)
             loss_train.backward()
-
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output[self.train_mask].detach().cpu().numpy())
             self.optim.step()
 
             # Evaluate

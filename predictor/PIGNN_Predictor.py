@@ -110,18 +110,3 @@ class pignn_Predictor(Predictor):
             print('Time(s): {:.4f}'.format(self.total_time))
             print("Loss(test) {:.4f} | Acc(test) {:.4f}".format(loss_test.item(), acc_test))
         return self.result
-
-    # def evaluate(self, label, mask):
-    #     self.model.eval()
-    #     features, adj = self.feats, self.adj
-    #     with torch.no_grad():
-    #         output, _ = self.model(features, adj)
-    #     logits = output[mask]
-    #     loss = self.loss_fn(logits, label)
-    #     return loss, self.metric(label.cpu().numpy(), logits.detach().cpu().numpy())
-    #
-    # def test(self, mask):
-    #     if self.weights is not None:
-    #         self.model.load_state_dict(self.weights)
-    #     label = self.clean_label
-    #     return self.evaluate(label[mask], mask)

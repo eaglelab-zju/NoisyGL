@@ -56,22 +56,9 @@ class jocor_Predictor(Predictor):
             self.model2.train()
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
-
-            # forward and backward
-            # output1 = self.model1(feature, adj)
-            # output2 = self.model2(feature, adj)
-            # logits1 = output1[self.train_mask]
-            # logits2 = output2[self.train_mask]
-            # labels = self.noisy_label[self.train_mask]
-            #
-            # loss_train = self.loss_fn(logits1, logits2, labels, self.rate_schedule[epoch], self.co_lambda)
-
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask, epoch)
             loss_train.backward()
             self.optim.step()
-
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output1[self.train_mask].detach().cpu().numpy())
 
             # Evaluate
             loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)

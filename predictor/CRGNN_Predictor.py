@@ -79,46 +79,6 @@ class crgnn_Predictor(Predictor):
             self.class_head.train()
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
-
-            # forward and backward
-            # output = self.model(features, adj)
-            # edge_index1, _ = dropout_adj(adj, p=0.3)
-            # edge_index2, _ = dropout_adj(adj, p=0.3)
-            # x1 = mask_feature(features, p=0.3)[0]
-            # x2 = mask_feature(features, p=0.3)[0]
-            #
-            # # Extract representations
-            # h1 = self.model(x1, edge_index1)
-            # h2 = self.model(x2, edge_index2)
-            #
-            # # Project to contrast space
-            # z1 = self.proj_head(h1)
-            # z2 = self.proj_head(h2)
-            #
-            # # Calculate contrastive loss
-            # loss_con = contrastive_loss(z1, z2, self.tau)
-            #
-            # # Project to classification space
-            # p1 = self.class_head(h1)
-            # p2 = self.class_head(h2)
-            #
-            # # Compute pseudo-labels and dynamic cross-entropy loss
-            # loss_sup = dynamic_cross_entropy_loss(p1[self.train_mask], p2[self.train_mask], self.noisy_label[self.train_mask])
-            #
-            # # Compute similarity matrices
-            # # zm = torch.exp(F.cosine_similarity(z1.unsqueeze(1), z2.unsqueeze(0), dim=1) / self.T).mean(dim=1)
-            # # pm = torch.exp(F.cosine_similarity(p1.unsqueeze(1), p2.unsqueeze(0), dim=1) / self.T).mean(dim=1)
-            #
-            # # Apply thresholding in classification space
-            # # pm = torch.where(pm > self.p, pm, torch.zeros_like(pm))
-            # # Calculate cross-space consistency loss
-            # # loss_ccon = cross_space_consistency_loss(zm, pm)
-            #
-            # # Total loss+ beta * loss_ccon
-            # loss_train = self.alpha * loss_con + loss_sup
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         self.class_head(output)[self.train_mask].detach().cpu().numpy())
-
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
             loss_train.backward()
             self.optim.step()

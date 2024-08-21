@@ -72,11 +72,8 @@ class clnode_Predictor(Predictor):
         # Test label is not available in the training process.
         # Here we replace the test label with constant integers when measuring difficulty,
         # which is different from the implementation provided by authors.
-
-        # input_label = self.noisy_label.clone()
         input_label = ((torch.min(self.noisy_label) + 0) * torch.ones(self.noisy_label.shape, dtype=torch.int64).to(
             self.noisy_label.device))
-        # input_label = torch.randint(low=torch.min(self.labels), high=torch.max(self.labels), size=self.labels.shape).to(self.labels.device)
         input_label[self.train_mask] = self.noisy_label[self.train_mask]
         input_label[self.val_mask] = self.noisy_label[self.val_mask]
         sorted_trainset_id, sorted_trainset_indices = self.difficultyMeasurer.sort_training_nodes(
@@ -90,17 +87,10 @@ class clnode_Predictor(Predictor):
 
             size = training_scheduler(self.lamb, epoch, self.T, self.scheduler)
             batch_id = sorted_trainset_id[:int(size * sorted_trainset_id.shape[0])]
-            batch_indices = sorted_trainset_indices[:int(size * sorted_trainset_indices.shape[0])]
-
-            # output = self.model(features, adj)
-            # loss_train = F.nll_loss(output[batch_id], self.noisy_label[batch_id])
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, batch_id)
 
             loss_train.backward()
             self.optim.step()
-
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output[self.train_mask].detach().cpu().numpy())
 
             # Evaluate
             loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)

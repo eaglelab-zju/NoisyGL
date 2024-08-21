@@ -211,11 +211,6 @@ class rtgnn_Predictor(Predictor):
         features = self.feats
         adj = self.adj
         _, loss, acc, = self.get_prediction(features, adj, label, mask, pred_edge_index, predictor_weights)
-        # output_0, output_1 = self.predictor(features, pred_edge_index, predictor_weights)
-        # loss = (F.cross_entropy(output_0[mask], label[mask]) + F.cross_entropy(output_1[mask], label[mask]))
-        # acc_pred_0 = self.metric(label[mask].cpu().numpy(), output_0[mask].detach().cpu().numpy())
-        # acc_pred_1 = self.metric(label[mask].cpu().numpy(), output_1[mask].detach().cpu().numpy())
-        # acc_val = 0.5 * (acc_pred_0 + acc_pred_1)
         return loss, acc
 
     def test(self, mask):

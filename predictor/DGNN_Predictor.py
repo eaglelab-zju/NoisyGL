@@ -84,13 +84,7 @@ class dgnn_Predictor(Predictor):
             self.model.train()
             self.optim.zero_grad()
             features, adj = self.feats, self.adj
-
             # forward and backward
-            # output = self.model(features, adj)
-
-            # loss_train = backward_correction(output[self.train_mask], self.noisy_label[self.train_mask], C)
-            # acc_train = self.metric(self.noisy_label[self.train_mask].cpu().numpy(),
-            #                         output[self.train_mask].detach().cpu().numpy())
             output, loss_train, acc_train = self.get_prediction(features, adj, self.noisy_label, self.train_mask)
             loss_train.backward()
             self.optim.step()
