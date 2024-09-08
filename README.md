@@ -135,14 +135,14 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 ## Reference
 ### LLN:
 | **ID** | **Paper**                                                                                                                | **Method**  | **Conference/Journal** |
-|--------|--------------------------------------------------------------------------------------------------------------------------|:-----------:|:--------------:|
-| 1      | [Training deep neural-networks using a noise adaptation layer](https://openreview.net/pdf?id=H12GRgcxg)                  |   S-model   |   ICLR 2017    |
-| 2      | [Making deep neural networks robust to label noise: A loss correction approach](https://arxiv.org/pdf/1609.03683)        |   Forward   |   CVPR 2017    | 
-| 3      | [Making deep neural networks robust to label noise: A loss correction approach](https://arxiv.org/pdf/1609.03683)  |  Backward   |   CVPR 2017    | 
-| 4      | [Co-teaching: Robust training of deep neural networks with extremely noisy labels](https://arxiv.org/pdf/1804.06872)     | Co-teaching | NeurIPS 2018,  |
-| 5      | [Symmetric Cross Entropy for Robust Learning With Noisy Labels](https://arxiv.org/pdf/1908.06112)                        |     SCE     |   ICCV 2019    |
-| 6      | [Combating Noisy Labels by Agreement: A Joint Training Method with Co-Regularization](https://arxiv.org/pdf/2003.02752) |    JoCoR    |   CVPR 2020    |
-| 7      | [Normalized Loss Functions for Deep Learning with Noisy Labels](https://proceedings.mlr.press/v119/ma20c/ma20c-supp.pdf) |     APL     |   PMLR 2020    |
+|--------|--------------------------------------------------------------------------------------------------------------------------|:-----------:|:----------------------:|
+| 1      | [Training deep neural-networks using a noise adaptation layer](https://openreview.net/pdf?id=H12GRgcxg)                  |   S-model   |       ICLR 2017        |
+| 2      | [Making deep neural networks robust to label noise: A loss correction approach](https://arxiv.org/pdf/1609.03683)        |   Forward   |       CVPR 2017        | 
+| 3      | [Making deep neural networks robust to label noise: A loss correction approach](https://arxiv.org/pdf/1609.03683)  |  Backward   |       CVPR 2017        | 
+| 4      | [Co-teaching: Robust training of deep neural networks with extremely noisy labels](https://arxiv.org/pdf/1804.06872)     | Co-teaching |     NeurIPS 2018,      |
+| 5      | [Symmetric Cross Entropy for Robust Learning With Noisy Labels](https://arxiv.org/pdf/1908.06112)                        |     SCE     |       ICCV 2019        |
+| 6      | [Combating Noisy Labels by Agreement: A Joint Training Method with Co-Regularization](https://arxiv.org/pdf/2003.02752) |    JoCoR    |       CVPR 2020        |
+| 7      | [Normalized Loss Functions for Deep Learning with Noisy Labels](https://proceedings.mlr.press/v119/ma20c/ma20c.pdf) |     APL     |       ICLR 2020        |
 
 ### GLN:
 | **ID** | **Paper** | **Method** | **Conference/Journal** |
