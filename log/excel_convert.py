@@ -23,7 +23,7 @@ if __name__ == "__main__":
         print(message)
     elif args.target == 'tex':
         message = sheet.to_latex()
-        print()
+        print(message)
     else:
         print("Unsupported target format")
     
