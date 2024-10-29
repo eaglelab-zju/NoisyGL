@@ -54,7 +54,7 @@ def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, d
     _, correct_labeled_train_accuracy = predictor.test(correct_labeled_train_mask)
     _, incorrect_labeled_train_accuracy = predictor.test(incorrect_labeled_train_mask)
     _, incorrect_labeled_mislead_train_accuracy = predictor.evaluate(
-        predictor.noisy_label[incorrect_labeled_train_mask], incorrect_labeled_train_mask)
+        predictor.noisy_label, incorrect_labeled_train_mask)
     _, unlabeled_unsupervised_accuracy = predictor.test(unlabeled_unsupervised_mask)
     _, unlabeled_correct_supervised_accuracy = predictor.test(unlabeled_correct_supervised_mask)
     _, unlabeled_incorrect_supervised_accuracy = predictor.test(unlabeled_incorrect_supervised_mask)
@@ -204,3 +204,4 @@ if __name__ == '__main__':
 
                 message = result_record.to_latex(na_rep='0', bold_rows=True, caption=f'RESULTS FOR {args.runs:d} RUNS')
                 f.write(message)
+    print(message)
