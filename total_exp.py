@@ -120,6 +120,7 @@ if __name__ == '__main__':
     result_recorder = ResultLogger(method_list, data_list, noise_list, args.runs)
     for noise_rate, noise_type in noise_list:
         for data_name in data_list:
+            setup_seed(args.seed)
             data_conf = load_conf('./config/_dataset/' + data_name + '.yaml')
             data = Dataset(data_name, path=data_path,
                            feat_norm=data_conf.norm['feat_norm'], adj_norm=data_conf.norm['adj_norm'],
