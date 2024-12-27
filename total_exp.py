@@ -43,7 +43,7 @@ def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, d
     correct_supervised_mask = get_neighbors(dataset.adj, correct_labeled_train_mask)
     unlabeled_incorrect_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, incorrect_supervised_mask)]
     unlabeled_correct_supervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, correct_supervised_mask)]
-    unlabeled_unsupervised_mask = dataset.test_masks[np.in1d(dataset.test_masks, supervised_mask)]
+    unlabeled_unsupervised_mask = dataset.test_masks[~np.in1d(dataset.test_masks, supervised_mask)]
 
     model_conf.model['n_feat'] = dataset.dim_feats
     model_conf.model['n_classes'] = dataset.n_classes
