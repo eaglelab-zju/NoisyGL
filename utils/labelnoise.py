@@ -110,7 +110,7 @@ def label_process(labels, n_classes, noise_type='uniform', noise_rate=0, random_
     else:
         if debug:
             print('Clean data')
-        noisy_train_labels = labels
+        noisy_train_labels = labels.clone()
 
     # Calculate the actual noise rate (may differ from the expected noise rate)
     actual_noise_rate = (noisy_train_labels.cpu().numpy() != labels.cpu().numpy()).mean()
