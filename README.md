@@ -90,10 +90,11 @@ a new config file with optimized hyperparameters will overwrite the original one
 You can optimize hyperparameters for different methods on various datasets and noise types 
 by changing the corresponding arguments. 
 
-**Method available** ： 
-`gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`, `lcat`
+**Method available** : 
+`gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`, `lcat`,
+`r2lp`
 
-**Dataset available** ： 
+**Dataset available** : 
 `cora`, `citeseer`, `pubmed`, `amazoncom`, `amazonpho`, `dblp`, `blogcatalog`, `flickr`, `amazon-ratings`, `roman-empire`
 
 | Dataset          | # Nodes | # Edges | # Feat. | # Classes | # Homophily | Avg. # degree |
@@ -150,14 +151,15 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 |--------|---------|:----------:|:----------------------:|
 | 1      | [Learning Graph Neural Networks with Noisy Labels](https://arxiv.org/abs/1905.01591)      |   D-GNN    |       ICLR 2019        |
 | 2      | [Adversarial label-flipping attack and defense for graph neural networks](https://ieeexplore.ieee.org/document/9338299) |  LafAK/CP  |       ICDM 2020        |
-| 3      | [NRGNN: Learning a Label Noise Resistant Graph Neural Network on Sparsely and Noisily Labeled Graphs](https://dl.acm.org/doi/10.1145/3447548.3467364)  |   NRGNN    |        KDD 2021        |
-| 4      | [Unified Robust Training for Graph Neural Networks Against Label Noise](https://link.springer.com/chapter/10.1007/978-3-030-75762-5_42)  | Union-Net  |       PAKDD 2021       |
-| 5      | [Robust training of graph neural networks via noise governance](https://dl.acm.org/doi/abs/10.1145/3539597.3570369)  |   RTGNN    |       WSDM 2023        |
+| 3      | [NRGNN: Learning a Label Noise Resistant Graph Neural Network on Sparsely and Noisily Labeled Graphs](https://dl.acm.org/doi/10.1145/3447548.3467364) |   NRGNN    |        KDD 2021        |
+| 4      | [Unified Robust Training for Graph Neural Networks Against Label Noise](https://link.springer.com/chapter/10.1007/978-3-030-75762-5_42) | Union-Net  |       PAKDD 2021       |
+| 5      | [Robust training of graph neural networks via noise governance](https://dl.acm.org/doi/abs/10.1145/3539597.3570369) |   RTGNN    |       WSDM 2023        |
 | 6      | [CLNode: Curriculum Learning for Node Classification](https://dl.acm.org/doi/10.1145/3539597.3570385)  |   CLNode   |       WSDM 2023        |
 | 7      | [Learning on Graphs under Label Noise](https://ieeexplore.ieee.org/abstract/document/10096088/)  |    CGNN    |      ICASSP 2023       |
 | 8      | [Noise-robust Graph Learning by Estimating and Leveraging Pairwise Interactions](https://openreview.net/forum?id=r7imkFEAQb) |   PIGNN    |       TMLR 2023        |
-| 9      | [Robust Node Classification on Graph Data with Graph and Label Noise](https://ojs.aaai.org/index.php/AAAI/article/view/29668)  |   RNCGLN   |       AAAI 2024        |
-| 10     | [Contrastive learning of graphs under label noise](https://www.sciencedirect.com/science/article/pii/S0893608024000273)  |   CRGNN    |   Neural Netw. 2024    
+| 9      | [Robust Node Classification on Graph Data with Graph and Label Noise](https://ojs.aaai.org/index.php/AAAI/article/view/29668) |   RNCGLN   |       AAAI 2024        |
+| 10     | [Contrastive learning of graphs under label noise](https://www.sciencedirect.com/science/article/pii/S0893608024000273) |   CRGNN    |   Neural Netw. 2024    
+| 11     | [Resurrecting label propagation for graphs with heterophily and label noise](https://dl.acm.org/doi/abs/10.1145/3637528.3671774)  |    R2LP    |        KDD 2024        |
 
 
 
