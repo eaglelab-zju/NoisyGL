@@ -135,6 +135,13 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 ```
 
 ## Reference
+
+### GNN:
+| **ID** | **Paper**                                                                                                                | **Method** | **Conference/Journal** |
+|--------|--------------------------------------------------------------------------------------------------------------------------|:----------:|:----------------------:|
+| 1      | [Semi-supervised classification with graph convolutional networks](https://arxiv.org/pdf/1609.02907)                      |    GCN     |       ICLR 2017        |
+| 2      | [How Powerful are Graph Neural Networks?](http://arxiv.org/abs/1810.00826)                                                |    GIN     |       ICLR 2019        |
+
 ### LLN:
 | **ID** | **Paper**                                                                                                                | **Method**  | **Conference/Journal** |
 |--------|--------------------------------------------------------------------------------------------------------------------------|:-----------:|:----------------------:|
