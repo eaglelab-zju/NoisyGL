@@ -5,7 +5,6 @@ from torch.nn.parameter import Parameter
 import torch.nn.init as init
 import numpy as np
 import scipy.sparse as sp
-from utils.functional import accuracy
 
 class MLP(nn.Module):
     def __init__(self, nnodes, nfeat, nhid, nclass, dropout, delta, cuda=True):
