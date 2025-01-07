@@ -47,7 +47,7 @@ parser.add_argument('--dataset', type=str,
                              'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select dataset')
 parser.add_argument('--method', type=str,
-                    default='r2lp',
+                    default='mlp',
                     choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching',
                              'apl', 'sce', 'forward', 'backward', 'lcat', 'mlp',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn',
