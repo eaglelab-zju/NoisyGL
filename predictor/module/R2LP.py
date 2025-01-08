@@ -93,7 +93,7 @@ class R2LP(nn.Module):
         coe1 = 1 - self.gamma
         coe2 = 1.0 / coe1
         res1 = torch.mm(torch.transpose(x, 0, 1), x)
-        inv = torch.inverse(coe2 * coe2 * self.class_eye + coe * res1)
+        inv = torch.linalg.pinv(coe2 * coe2 * self.class_eye + coe * res1)
         # u = torch.cholesky(coe2 * coe2 * torch.eye(self.nclass) + coe * res)
         # inv = torch.cholesky_inverse(u)
         res = torch.mm(inv, res1)
