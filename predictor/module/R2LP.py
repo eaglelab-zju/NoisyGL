@@ -7,16 +7,14 @@ import numpy as np
 import scipy.sparse as sp
 
 class MLP(nn.Module):
-    def __init__(self, nnodes, nfeat, nhid, nclass, dropout, delta, cuda=True):
+    def __init__(self, nnodes, nfeat, nhid, nclass, dropout, delta):
         super(MLP, self).__init__()
         self.fc1 = nn.Linear(nfeat, nhid)
         self.fc2 = nn.Linear(nhid, nclass)
         self.fc3 = nn.Linear(nnodes, nhid)
         self.nclass = nclass
         self.dropout = dropout
-        self.delta = torch.tensor(delta)
-        if cuda:
-            self.delta = self.delta.cuda()
+        self.delta = delta
 
     def forward(self, x, adj):
         xX = F.dropout(x, self.dropout, training=self.training)
@@ -25,7 +23,6 @@ class MLP(nn.Module):
         x = F.relu(self.delta * xX + (1-self.delta) * xA)
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.fc2(x)
-
         return x
 
 class R2LP(nn.Module):
