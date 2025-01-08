@@ -55,7 +55,8 @@ class r2lp_Predictor(Predictor):
                 self.optim.step()
 
                 # Evaluate
-                loss_val, acc_val = self.evaluate(new_labels, self.val_mask)
+                loss_val, acc_val = self.evaluate(self.noisy_label, self.val_mask)
+                # loss_val, acc_val = self.evaluate(new_labels, self.val_mask)
                 # loss_val, acc_val = self.evaluate(self.clean_label, self.test_mask)
                 flag, flag_earlystop = self.recoder.add(loss_val, acc_val)
                 if flag:
