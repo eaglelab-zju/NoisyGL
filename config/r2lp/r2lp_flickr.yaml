@@ -1,40 +1,36 @@
-model:
-  method: r2lp
-  n_hidden: 64
-  n_layer: 2
-  act: F.relu
-  dropout: 0.5
-  norm_info: ~
-  input_layer: false
-  output_layer: false
-
-  alpha: 0.0
-  beta: 1.0
-  gamma: 0.0
-  delta: 0.0
-  norm_layers: 2
-  orders: 1
-  orders_func_id: 2
-  norm_func_id: 1
-  alpha1: 0.6
-  alpha2: 0.0
-  alpha3: 0.1
-  pre_select: 0.2
-
-training:
-  lr: 1e-2
-  weight_decay: 5e-4
-  n_epochs: 200
-  n_epochs_lp: 20
-  patience: ~
-  criterion: metric
-  pre_unknown: 0.5
-  pre_select: 0.5
-
-dataset:
-  sparse: true
-
 analysis:
   flag: false
   project: gnn-with-label-noise
   save_graph: false
+dataset:
+  sparse: true
+model:
+  act: F.relu
+  alpha: 77
+  alpha1: 0.20611658390688609
+  alpha2: 0.23377675112692867
+  alpha3: 0.6536241399645024
+  beta: 1
+  delta: 0.9
+  dropout: 0.8486763048987006
+  gamma: 0.7273706443574145
+  input_layer: false
+  method: r2lp
+  n_hidden: 64
+  n_layer: 3
+  norm_func_id: 1
+  norm_info: null
+  norm_layers: 2
+  orders: 6
+  orders_func_id: 2
+  output_layer: false
+  pre_select: 0.5
+training:
+  criterion: metric
+  lr: 0.01
+  n_epochs: 200
+  n_epochs_lp: 10
+  patience: null
+  pre_select: 0.5
+  pre_unknown: 0.5
+  weight_decay: 0.0005
