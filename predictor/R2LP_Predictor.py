@@ -1,11 +1,12 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from predictor.module.R2LP import R2LP, new_clean
+from predictor.module.R2LP import R2LP, new_clean, normalize_dense, normalize_sparse
 from predictor.Base_Predictor import Predictor
 import time
 from copy import deepcopy
 import nni
+from torch_geometric.utils import add_self_loops
 
 
 class r2lp_Predictor(Predictor):
@@ -31,6 +32,9 @@ class r2lp_Predictor(Predictor):
         self.y_unknown = torch.zeros((self.n_nodes, self.n_classes)).to(self.device)
         self.y_unknown[self.idx_unknown] = F.one_hot(self.noisy_label[self.idx_unknown],
                                                      self.n_classes).float().squeeze(1)  # the matrix of noisy labels
+        self.adj = add_self_loops(data.adj)[0]
+        self.adj = normalize_sparse(self.adj)
+        self.feats = normalize_dense(self.feats)
 
     def get_prediction(self, features, adj, label=None, mask=None):
         output = self.model(features, adj, self.y_clean, self.y_unknown, if_lp=False)

@@ -5,6 +5,7 @@ from torch.nn.parameter import Parameter
 import torch.nn.init as init
 import numpy as np
 import scipy.sparse as sp
+import torch.sparse as sparse
 
 class MLP(nn.Module):
     def __init__(self, nnodes, nfeat, nhid, nclass, dropout, delta):
@@ -257,3 +258,25 @@ def select(Cp, output):
         lamada_i = miu_p + sig_p
         lamada_p.append(lamada_i)
     return lamada_p
+
+def normalize_dense(mx):
+    """Row-normalize dense matrix"""
+    rowsum = torch.sum(mx, dim=1)
+    r_inv = torch.pow(rowsum, -1)
+    r_inv[torch.isinf(r_inv)] = 0.
+    r_mat_inv = torch.diag(r_inv)
+    mx = torch.mm(r_mat_inv, mx)
+    return mx
+
+def normalize_sparse(mx):
+    """Row-normalize sparse COO tensor"""
+    rowsum = torch.sparse.sum(mx, dim=1).to_dense()
+    r_inv = torch.pow(rowsum, -1)
+    r_inv[torch.isinf(r_inv)] = 0.
+    r_mat_inv = torch.sparse_coo_tensor(
+        torch.arange(mx.size(0)).repeat(2, 1).to(mx.device),
+        r_inv,
+        (mx.size(0), mx.size(0))
+    )
+    mx = torch.sparse.mm(r_mat_inv, mx)
+    return mx
