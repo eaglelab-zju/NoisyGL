@@ -7,17 +7,17 @@ dataset:
 model:
   act: F.relu
   alpha: 0.0
-  alpha1: 0.6437974639826387
-  alpha2: 0.8094391233446296
-  alpha3: 0.4210864431410133
-  beta: 1000
+  alpha1: 0.7999909364785589
+  alpha2: 0.5257222667286698
+  alpha3: 0.27687644886841933
+  beta: 0.1
   delta: 0.0
-  dropout: 0.10623868958292518
-  gamma: 0.16926755241962227
+  dropout: 0.8975519994568789
+  gamma: 0.5092217409736868
   input_layer: false
   method: r2lp
-  n_hidden: 64
-  n_layer: 3
+  n_hidden: 128
+  n_layer: 4
   norm_func_id: 1
   norm_info: null
   norm_layers: 2
@@ -33,4 +33,4 @@ training:
   patience: null
   pre_select: 0.5
   pre_unknown: 0.5
-  weight_decay: 0.0005
+  weight_decay: 1e-07
