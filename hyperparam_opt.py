@@ -46,7 +46,7 @@ if __name__ == '__main__':
     experiment = Experiment('local')
     command = 'python single_exp.py'
     for k, v in sorted(vars(args).items()):
-        if k in ['data', 'method', 'noise_type', 'noise_rate', 'device', 'seed']:
+        if k in ['dataset', 'method', 'noise_type', 'noise_rate', 'device', 'seed']:
             command += ' --' + k + '=' + str(v)
     experiment.config.trial_command = command
     experiment.config.trial_code_directory = '.'
