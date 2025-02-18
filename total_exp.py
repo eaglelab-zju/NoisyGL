@@ -29,6 +29,7 @@ from predictor.Backward_Predictor import backward_Predictor
 from predictor.LCAT_Predictor import lcat_Predictor
 from predictor.MLP_Predictor import mlp_Predictor
 from predictor.R2LP_Predictor import r2lp_Predictor
+from predictor.TSS_Predictor import tss_Predictor
 
 
 def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, debug=True):
@@ -78,7 +79,7 @@ parser.add_argument('--methods', type=str, nargs='+',
                     default=['gcn', 'smodel', 'coteaching', 'jocor', 'apl', 'sce', 'forward', 'backward'],
                     choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching',
                              'apl', 'sce', 'forward', 'backward', 'lcat', 'mlp',
-                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn',
+                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'tss',
                              'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn', 'r2lp'],
                     help='Select methods')
 parser.add_argument('--datasets', type=str, nargs='+',

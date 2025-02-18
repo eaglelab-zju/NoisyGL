@@ -25,6 +25,7 @@ from predictor.Backward_Predictor import backward_Predictor
 from predictor.LCAT_Predictor import lcat_Predictor
 from predictor.MLP_Predictor import mlp_Predictor
 from predictor.R2LP_Predictor import r2lp_Predictor
+from predictor.TSS_Predictor import tss_Predictor
 
 
 def merge_params(model_conf):
@@ -50,7 +51,7 @@ parser.add_argument('--method', type=str,
                     default='mlp',
                     choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching',
                              'apl', 'sce', 'forward', 'backward', 'lcat', 'mlp',
-                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn',
+                             'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'tss',
                              'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn', 'r2lp'],
                     help="Select methods")
 parser.add_argument('--noise_type', type=str,
