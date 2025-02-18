@@ -113,10 +113,12 @@ by changing the corresponding arguments.
 **noise type** ： 
 `clean`, `pair`, `uniform`, `random (new)`
 
-## Performance overview
+[//]: # (## Performance overview)
 
-Test accuracy of LLN and GLN methods on DBLP dataset under 30% pair and uniform noise, respectively (10 Runs).
-![performance overview DBLP](img/noise_type_DBLP.png)
+[//]: # ()
+[//]: # (Test accuracy of LLN and GLN methods on DBLP dataset under 30% pair and uniform noise, respectively &#40;10 Runs&#41;.)
+
+[//]: # (![performance overview DBLP]&#40;img/noise_type_DBLP.png&#41;)
 
 
 ## Citation
@@ -167,7 +169,7 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 | 9      | [Robust Node Classification on Graph Data with Graph and Label Noise](https://ojs.aaai.org/index.php/AAAI/article/view/29668) |   RNCGLN   |       AAAI 2024        |
 | 10     | [Contrastive learning of graphs under label noise](https://www.sciencedirect.com/science/article/pii/S0893608024000273) |   CRGNN    |   Neural Netw. 2024    
 | 11     | [Resurrecting label propagation for graphs with heterophily and label noise](https://dl.acm.org/doi/abs/10.1145/3637528.3671774)  |    R2LP    |        KDD 2024        |
-
+| 12     | [Mitigating Label Noise on Graph via Topological Sample Selection](https://proceedings.mlr.press/v235/wu24ae.html)  |    TSS     |       ICML 2024        |
 
 
 
