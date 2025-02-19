@@ -158,7 +158,7 @@ If our work could help your research, please cite: [NoisyGL: A Comprehensive Ben
 ### GLN:
 | **ID** | **Paper** | **Method** | **Conference/Journal** |
 |--------|---------|:----------:|:----------------------:|
-| 1      | [Adversarial label-flipping attack and defense for graph neural networks](https://ieeexplore.ieee.org/document/9338299) |  LafAK/CP  |       ICDM 2020        |
+| 1      | [Adversarial label-flipping attack and defense for graph neural networks](https://ieeexplore.ieee.org/document/9338299) |  CP  |       ICDM 2020        |
 | 2      | [NRGNN: Learning a Label Noise Resistant Graph Neural Network on Sparsely and Noisily Labeled Graphs](https://dl.acm.org/doi/10.1145/3447548.3467364) |   NRGNN    |        KDD 2021        |
 | 3      | [Unified Robust Training for Graph Neural Networks Against Label Noise](https://link.springer.com/chapter/10.1007/978-3-030-75762-5_42) | Union-Net  |       PAKDD 2021       |
 | 4      | [Robust training of graph neural networks via noise governance](https://dl.acm.org/doi/abs/10.1145/3539597.3570369) |   RTGNN    |       WSDM 2023        |
