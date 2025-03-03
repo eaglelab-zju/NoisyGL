@@ -122,17 +122,19 @@ by changing the corresponding arguments.
 
 
 ## Citation
-If our work could help your research, please cite: [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://arxiv.org/abs/2406.04299) 
+If our work could help your research, please cite: [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://proceedings.neurips.cc/paper_files/paper/2024/hash/436ffa18e7e17be336fd884f8ebb5748-Abstract-Datasets_and_Benchmarks_Track.html) 
 
 ```
-@article{wang2024noisygl,
-      title={NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise}, 
-      author={Zhonghao Wang and Danyu Sun and Sheng Zhou and Haobo Wang and Jiapei Fan and Longtao Huang and Jiajun Bu},
-      year={2024},
-      eprint={2406.04299},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2406.04299}, 
+@inproceedings{NEURIPS2024_436ffa18,
+ author = {Wang, Zhonghao and Sun, Danyu and Zhou, Sheng and Wang, Haobo and Fan, Jiapei and Huang, Longtao and Bu, Jiajun},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {38142--38170},
+ publisher = {Curran Associates, Inc.},
+ title = {NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/436ffa18e7e17be336fd884f8ebb5748-Paper-Datasets_and_Benchmarks_Track.pdf},
+ volume = {37},
+ year = {2024}
 }
 ```
 
