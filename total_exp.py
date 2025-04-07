@@ -35,7 +35,8 @@ from predictor.TSS_Predictor import tss_Predictor
 def run_single_exp(dataset, method_name, seed, noise_type, noise_rate, device, debug=True):
     setup_seed(seed)
     model_conf = load_conf(None, method_name, dataset.name)
-    dataset.noisy_label, modified_mask = label_process(labels=dataset.labels, n_classes=dataset.n_classes,
+    dataset.noisy_label, modified_mask = label_process(labels=dataset.labels, features=dataset.feats,
+                                                       n_classes=dataset.n_classes,
                                                        noise_type=noise_type, noise_rate=noise_rate,
                                                        random_seed=seed, debug=debug)
     incorrect_labeled_train_mask = dataset.train_masks[np.in1d(dataset.train_masks, modified_mask)]
@@ -90,7 +91,7 @@ parser.add_argument('--datasets', type=str, nargs='+',
                     help='Select datasets')
 parser.add_argument('--noise_type', type=str, nargs='+',
                     default=['clean', 'pair', 'uniform'],
-                    choices=['clean', 'pair', 'uniform', 'random'], help='Noise type')
+                    choices=['clean', 'pair', 'uniform', 'random', 'instance'], help='Noise type')
 parser.add_argument('--noise_rate', type=float, nargs='+',
                     default=[0.1, 0.2, 0.3, 0.4, 0.5],
                     help='Noise rate')

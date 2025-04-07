@@ -23,8 +23,8 @@ from predictor.SCE_Predictor import sce_Predictor
 from predictor.Forward_Predictor import forward_Predictor
 from predictor.Backward_Predictor import backward_Predictor
 from predictor.LCAT_Predictor import lcat_Predictor
-from predictor.MLP_Predictor import mlp_Predictor
 from predictor.R2LP_Predictor import r2lp_Predictor
+from predictor.MLP_Predictor import mlp_Predictor
 from predictor.TSS_Predictor import tss_Predictor
 
 
@@ -48,15 +48,15 @@ parser.add_argument('--dataset', type=str,
                              'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select dataset')
 parser.add_argument('--method', type=str,
-                    default='mlp',
+                    default='gcn',
                     choices=['gcn', 'gin', 'smodel', 'jocor', 'coteaching',
                              'apl', 'sce', 'forward', 'backward', 'lcat', 'mlp',
                              'nrgnn', 'rtgnn', 'cp', 'unionnet', 'cgnn', 'tss',
                              'crgnn', 'clnode', 'rncgln', 'pignn', 'dgnn', 'r2lp'],
                     help="Select methods")
 parser.add_argument('--noise_type', type=str,
-                    default='uniform',
-                    choices=['clean', 'uniform', 'pair', 'random'], help='Type of label noise')
+                    default='instance',
+                    choices=['clean', 'uniform', 'pair', 'random', 'instance'], help='Type of label noise')
 parser.add_argument('--noise_rate', type=float,
                     default='0.3',
                     help='Label noise rate')
@@ -94,13 +94,16 @@ if __name__ == '__main__':
     model_conf = load_conf(None, args.method, data.name)
     if nni.get_trial_id() != "STANDALONE":
         model_conf = merge_params(model_conf)
-    data.noisy_label, modified_mask = label_process(labels=data.labels, n_classes=data.n_classes,
+    data.noisy_label, modified_mask = label_process(labels=data.labels, features=data.feats,
+                                                    n_classes=data.n_classes,
                                                     noise_type=args.noise_type, noise_rate=args.noise_rate,
                                                     random_seed=args.seed, debug=True)
+
     model_conf.model['n_feat'] = data.dim_feats
     model_conf.model['n_classes'] = data.n_classes
     model_conf.training['debug'] = True
     predictor = eval(args.method + '_Predictor')(model_conf, data, args.device)
+    predictor.modified_mask = modified_mask
     result = predictor.train()
     if nni.get_trial_id() != "STANDALONE":
         nni.report_final_result(float(result['test']))

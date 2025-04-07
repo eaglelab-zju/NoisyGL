@@ -1,7 +1,9 @@
 import numpy as np
 import torch
+import torch.nn.functional as F
 from numpy.testing import assert_array_almost_equal
 from utils.tools import setup_seed
+from scipy import stats
 
 
 def uniform_noise_cp(n_classes, noise_rate):
@@ -46,7 +48,7 @@ def label_dropout(masks, dropout_rate, random_seed):
     return new_masks
 
 
-def add_label_noise(labels, cp, random_seed):
+def add_instance_independent_label_noise(labels, cp, random_seed):
     assert_array_almost_equal(cp.sum(axis=1), np.ones(cp.shape[1]))
     n_labels = labels.shape[0]
     noisy_labels = labels.copy()
@@ -61,18 +63,91 @@ def add_label_noise(labels, cp, random_seed):
     return noisy_labels
 
 
-def label_process(labels, n_classes, noise_type='uniform', noise_rate=0, random_seed=5, debug=True):
+def add_instance_dependent_label_noise(noise_rate, feature, labels, num_classes, norm_std, seed):
     '''
-    assert (dropout_rate >= 0.) and (dropout_rate < 1.)
+    Add instance-dependent label noise to the labels.
+    Implemented according to the following paper:
+    Xia, Xiaobo, et al. "Part-dependent label noise: Towards instance-dependent label noise." Advances in Neural Information Processing Systems 33 (2020): 7597-7610.
+    paper link: https://proceedings.neurips.cc/paper_files/paper/2020/hash/5607fe8879e4fd269e88387e8cb30b7e-Abstract.html
+    code link: https://github.com/xiaoboxia/Part-dependent-label-noise
 
-    # Dropout labels according to 'dropout_rate'
-    if dropout_rate > 0:
-        train_masks = label_dropout(masks, dropout_rate, random_seed)
-    else:
-        train_masks = masks
-    train_labels = labels[train_masks]
-    print('#Label dropout rate: %.2f ' % dropout_rate)
-    print('#Actual number of labels: %d' % train_labels.shape[0])
+    Parameters
+    ----------
+    noise_rate: int
+        The number of label classes
+    feature: torch.Tensor
+        Node features
+    labels: np.ndarray
+        Original labels
+    num_classes: int
+        The number of label classes
+    norm_std: float
+        Hyperparameter
+    seed: int
+        Set random seed
+
+    Returns
+    ------
+    new_label: np.ndarray
+        Processed noisy labels
+    '''
+    label_num = num_classes
+    setup_seed(seed)
+    num_nodes = labels.shape[0]
+    feature_size = feature.shape[1]
+
+    P = []
+    flip_distribution = stats.truncnorm((0 - noise_rate) / norm_std, (1 - noise_rate) / norm_std, loc=noise_rate, scale=norm_std)
+    flip_rate = flip_distribution.rvs(num_nodes)
+
+    labels = torch.Tensor(labels).to(torch.long)
+    labels = labels.to(feature.device)
+
+    W = np.random.randn(label_num, feature_size, label_num)
+    W = torch.FloatTensor(W).to(feature.device)
+
+    for i in range(num_nodes):
+        # 1*m *  m*10 = 1*10
+        x = feature[i].unsqueeze(0)
+        y = labels[i]
+        A = x.mm(W[y]).squeeze(0)
+        A[y] = -torch.inf
+        A = flip_rate[i] * F.softmax(A, dim=0)
+        A[y] += 1 - flip_rate[i]
+        P.append(A)
+    P = torch.stack(P, 0).cpu().numpy()
+    l = [i for i in range(label_num)]
+    new_label = [np.random.choice(l, p=P[i]) for i in range(labels.shape[0])]
+    return np.array(new_label)
+
+
+
+def label_process(labels, features, n_classes, noise_type='uniform', noise_rate=0, random_seed=5, debug=True):
+    '''
+    Parameters
+    ----------
+    labels: np.ndarray
+        Original labels
+    features: torch.Tensor
+        Node features
+    n_classes: int
+        The number of label classes
+    noise_type: string
+        Specify the type of label noise
+    noise_rate: float
+        Specify label noise rate
+    random_seed: int
+        Set random seed
+    debug: bool
+        Debug mode
+
+    Returns
+    -------
+    noisy_train_labels: np.ndarray
+        Processed noisy labels
+    modified_mask: np.ndarray
+        Mark modified labels
+
     '''
     setup_seed(random_seed)
     assert (noise_rate >= 0.) and (noise_rate <= 1.)
@@ -96,6 +171,10 @@ def label_process(labels, n_classes, noise_type='uniform', noise_rate=0, random_
             if debug:
                 print("Pair noise")
             cp = pair_noise_cp(n_classes, noise_rate)
+        elif noise_type == 'instance':
+            if debug:
+                print("Instance dependent noise")
+            cp = None
         else:
             cp = np.eye(n_classes)
             if debug:
@@ -103,10 +182,13 @@ def label_process(labels, n_classes, noise_type='uniform', noise_rate=0, random_
     else:
         cp = np.eye(n_classes)
 
-    # Randomly flip labels according to corruption probability 'cp'
     if noise_rate > 0.0:
-        noisy_labels = add_label_noise(labels.cpu().numpy(), cp, random_seed)
-        noisy_train_labels = torch.tensor(noisy_labels).to(labels.device)
+        if cp is not None:
+            noisy_labels = add_instance_independent_label_noise(labels.cpu().numpy(), cp, random_seed)
+            add_instance_dependent_label_noise()
+        else:
+            noisy_labels = add_instance_dependent_label_noise(noise_rate, features, labels.cpu().numpy(), n_classes, 0.1, random_seed)
+        noisy_train_labels = torch.tensor(noisy_labels).to(torch.long).to(labels.device)
     else:
         if debug:
             print('Clean data')
