@@ -32,7 +32,7 @@ The above features provide you with convenience and freedom when using our libra
 You can modify the implementation details of specific methods, 
 or add new modules to implement your novel methods within the framework we provide easily.
 
-## Installation
+## ⚙️ Installation
 <!--
 [PyTorch](https://pytorch.org/get-started/previous-versions/)
 [PyTorch Geometric, PyTorch Sparse](https://data.pyg.org/whl/)
@@ -40,7 +40,7 @@ or add new modules to implement your novel methods within the framework we provi
 -->
 **Note:** NoisyGL depends on [PyTorch](https://pytorch.org/), [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html), [PyTorch Sparse](https://github.com/rusty1s/pytorch_sparse) and [PyTorch Cluster](https://github.com/rusty1s/pytorch_cluster). To streamline the installation, NoisyGL does **NOT** install these libraries for you. Please install them from the above links for running NoisyGL.
 
-## Required Dependencies:
+## ⚙️ Required Dependencies:
 - Python 3.11+
 - torch>=2.1.0
 - pyg>=2.5.0
@@ -56,7 +56,7 @@ or add new modules to implement your novel methods within the framework we provi
 - numpy
 - xlsxwriter
 
-## Quick Start
+## 🚀 Quick Start
 ###  Run comprehensive benchmark.
 ``` bash
 python total_exp.py --runs 10 --methods gcn gin --datasets cora citeseer pubmed --noise_type clean uniform pair --noise_rate 0.1 0.2 --device cuda:0 --seed 3000
