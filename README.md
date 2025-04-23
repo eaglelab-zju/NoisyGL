@@ -111,7 +111,7 @@ by changing the corresponding arguments.
 | Roman-empire	    | 22,662	 | 32,927	 | 300	    | 18	       | 0.05	       | 2.90          |
 
 **noise type** ： 
-`clean`, `pair`, `uniform`, `random (new)`
+`clean`, `pair`, `uniform`, `random`, `instance(instance dependent)`
 
 [//]: # (## Performance overview)
 
