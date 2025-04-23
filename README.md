@@ -90,6 +90,8 @@ a new config file with optimized hyperparameters will overwrite the original one
 You can optimize hyperparameters for different methods on various datasets and noise types 
 by changing the corresponding arguments. 
 
+## Sumamry
+
 **Method available** : 
 `gcn`, `smodel`, `forward`, `backward`, `coteaching`, `sce`, `jocor`, `apl`, `dgnn`, `cp`, `nrgnn`, `unionnet`, `rtgnn`, `clnode`, `cgnn`, `pignn`, `rncgln`, `crgnn`, `lcat`,
 `r2lp`, `tss`
