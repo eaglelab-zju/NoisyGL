@@ -110,7 +110,7 @@ by changing the corresponding arguments.
 | Amazon-ratings	  | 24,492	 | 93,050	 | 300	    | 5	        | 0.38	       | 7.60          |
 | Roman-empire	    | 22,662	 | 32,927	 | 300	    | 18	       | 0.05	       | 2.90          |
 
-**noise type** ： 
+**Label noise type** ： 
 `clean`, `pair`, `uniform`, `random`, `instance(instance dependent)`
 
 [//]: # (## Performance overview)
