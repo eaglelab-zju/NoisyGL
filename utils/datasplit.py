@@ -1,7 +1,3 @@
-'''
-This file is to split Coauthor/Amazon dataset
-'''
-
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import torch
