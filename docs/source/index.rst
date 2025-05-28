@@ -36,3 +36,27 @@ If our work could help your research, we would appreciate citations to the paper
      volume = {37},
      year = {2024}
     }
+
+.. toctree::
+    :glob:
+    :maxdepth: 3
+    :caption: Getting Started
+
+    notes/installation
+    notes/example
+    notes/tutorial
+
+.. toctree::
+    :glob:
+    :maxdepth: 2
+    :caption: Modules
+
+    utils
+    predictor
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
