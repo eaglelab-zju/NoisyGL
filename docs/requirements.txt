@@ -4,3 +4,16 @@ sphinxcontrib-bibtex
 sphinx_gallery
 sphinx-autobuild
 sphinx-autoapi
+
+torch
+torch_geometric
+torchdata
+ruamel
+ruamel.yaml
+nni
+openpyxl
+xlsxwriter
+tabulate
+ogb
+bokeh
+pyvis
