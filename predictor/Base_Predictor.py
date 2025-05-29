@@ -9,6 +9,22 @@ import nni
 
 
 class Predictor:
+    '''
+    Base class for all predictors. It provides the common training, evaluation and testing procedures.
+
+    Parameters
+    ----------
+    conf : Namespace
+        Method config
+    data: utils.dataloader.Dataset
+        Dataset used for training
+    device: str
+        Device to run the model on, default is 'cuda:0'.
+
+    Returns
+    -------
+    None
+    '''
     def __init__(self, conf, data, device='cuda:0'):
         super(Predictor, self).__init__()
         self.conf = conf
@@ -20,7 +36,19 @@ class Predictor:
         '''
         This conducts necessary operations for an experiment, including the setting specified split,
         variables to record statistics.
+
+        Parameters
+        ----------
+        conf : Namespace
+            Method config
+        data: utils.dataloader.Dataset
+            Dataset used for training
+
+        Returns
+        -------
+        None
         '''
+
         self.loss_fn = F.binary_cross_entropy_with_logits if data.n_classes == 1 else F.cross_entropy
         self.metric = roc_auc_score if data.n_classes == 1 else accuracy
         self.edge_index = data.adj.indices()
@@ -42,12 +70,42 @@ class Predictor:
     def method_init(self, conf, data):
         '''
         This sets module and other members, which is overwritten for each method.
+
+        Parameters
+        ----------
+        conf : Namespace
+            Method config
+        data: utils.dataloader.Dataset
+            Dataset used for training
+
+        Returns
+        -------
+        None
         '''
         self.model = None
         self.optim = None
         return None
 
     def get_prediction(self, features, adj, label=None, mask=None):
+        '''
+        This is the common training procedure, which is overwritten for special learning procedure.
+
+        Parameters
+        ----------
+        features: torch.tensor
+            node feature
+        adj: torch.tensor
+            graph adjacency matrix
+
+        Returns
+        -------
+        output : torch.tensor
+            The output of the model.
+        loss : torch.tensor or None
+            The loss value if label and mask are provided, otherwise None.
+        acc : float or None
+            The value of metric if label and mask are provided, otherwise None.
+        '''
         output = self.model(features, adj)
         loss, acc = None, None
         if (label is not None) and (mask is not None):
