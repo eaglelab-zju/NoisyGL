@@ -146,3 +146,5 @@
 /data/amazon_ratings/processed/pre_transform.pt
 /data/roman_empire/processed/pre_transform.pt
 /data/roman_empire/raw/roman_empire.npz
+/log/
+/data/
