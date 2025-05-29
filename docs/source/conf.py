@@ -16,9 +16,9 @@
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, str(Path('..', 'utils').resolve()))
-sys.path.insert(0, str(Path('..', 'predictor').resolve()))
+# sys.path.insert(0, os.path.abspath('../../'))
+# sys.path.insert(0, str(Path('../../', 'utils').resolve()))
+# sys.path.insert(0, str(Path('../../', 'predictor').resolve()))
 
 # -- Project information -----------------------------------------------------
 
