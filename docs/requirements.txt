@@ -12,6 +12,7 @@ ruamel.yaml<0.18.0
 nni
 openpyxl
 xlsxwriter
+matplotlib
 tabulate
 ogb
 bokeh
