@@ -8,8 +8,7 @@ sphinx-autoapi
 torch
 torch_geometric
 torchdata
-ruamel
-ruamel.yaml
+ruamel.yaml<0.18.0
 nni
 openpyxl
 xlsxwriter
