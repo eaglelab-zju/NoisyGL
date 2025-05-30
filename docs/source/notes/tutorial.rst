@@ -13,10 +13,14 @@ Step 1: Provide config file
 
 Before implementing your own model, you need to provide a configuration file that defines the model structure, training parameters, dataset properties, and other options.
 
+This configuration file should be in YAML format and located in the `config` directory. You should provide configuration file for each method and dataset combination.
+
+For example, if you want to implement a GCN model and test it on the Cora dataset, you can create a file named `mygln_cora.yaml` in the `config/mygln` directory with the following content:
+
 .. code-block:: yaml
 
     model:
-      method: gcn
+      method: mygln
       n_hidden: 64
       n_layer: 2
       act: F.relu
@@ -37,7 +41,7 @@ Before implementing your own model, you need to provide a configuration file tha
 
     analysis:
       flag: false
-      project: gnn-with-label-noise
+      project: NoisyGL
       save_graph: false
 
 Step 2: Define Your Predictor Class
