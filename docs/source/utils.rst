@@ -21,7 +21,7 @@ utils.functional module
 -----------------------
 
 .. automodule:: utils.functional
-   :members:
+   :members: accuracy, normalize
    :undoc-members:
    :show-inheritance:
 

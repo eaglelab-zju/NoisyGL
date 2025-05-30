@@ -43,7 +43,7 @@ def merge_params(model_conf):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str,
-                    default='cora',
+                    default='dblp',
                     choices=['cora', 'citeseer', 'pubmed', 'amazoncom', 'amazonpho',
                              'dblp', 'blogcatalog', 'flickr', 'amazon-ratings', 'roman-empire'],
                     help='Select dataset')

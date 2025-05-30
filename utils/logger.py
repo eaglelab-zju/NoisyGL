@@ -5,7 +5,8 @@ import pandas as pd
 
 class MultiExpRecorder(object):
     """
-    Logger Class.
+    MultiExpRecorder Class.
+    This records the performances of multiple runs.
 
     Parameters
     ----------
@@ -46,6 +47,7 @@ class MultiExpRecorder(object):
     def get_statistics(self):
         '''
         Function to output the statistics.
+        This function computes the mean and standard deviation of the results across all runs.
 
         Parameters
         ----------
@@ -53,6 +55,7 @@ class MultiExpRecorder(object):
 
         Returns
         -------
+        total_results : dict
             The statistics of a given run or all runs.
 
         '''
@@ -93,6 +96,21 @@ class MultiExpRecorder(object):
 
 
 class ResultLogger(object):
+    """
+    ResultLogger Class.
+    This records the performances of multiple runs in a structured way, including plain text, LaTeX and Excel files.
+
+    Parameters
+    ----------
+    method_list : list
+        List of method names.
+    data_list : list
+        List of dataset names.
+    noise_list : list
+        List of noise types and rates, where each element is a tuple (rate, type).
+    runs : int
+        Total experimental runs.
+    """
     def __init__(self, method_list, data_list, noise_list, runs):
         self.file_name = str(time.strftime("%Y-%m-%d_%H-%M-%S"))
         self.log_path = './log/' + self.file_name + '.txt'
@@ -120,6 +138,28 @@ class ResultLogger(object):
         self.excel_result_tabel_time = pd.DataFrame(index=excel_index, columns=columns)
 
     def dump_record(self, method_name, data_name, noise_type, noise_rate, total_results):
+        '''
+        Function to dump the record of a single run.
+        This function records the results of a single run in plain text, LaTeX and Excel files.
+
+        Parameters
+        ----------
+        method_name: str
+            Name of the method.
+        data_name: str
+            Name of the dataset.
+        noise_type: str
+            Type of the noise, e.g., 'uniform', 'pair', etc.
+        noise_rate: float
+            Rate of the noise, e.g., 0.3 for 30% noise.
+        total_results: dict
+            A dictionary containing the results of the experiment, including test accuracy, time, etc.
+
+        Returns
+        -------
+        None
+
+        '''
         test_acc_ave, test_acc_std = total_results['test_accuracy']['acc'], total_results['test_accuracy']['std']
         aclt_ave, aclt_std = (total_results["correct_labeled_train_accuracy"]['acc'],
                               total_results["correct_labeled_train_accuracy"]['std'])

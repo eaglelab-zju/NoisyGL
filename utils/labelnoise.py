@@ -7,6 +7,20 @@ from scipy import stats
 
 
 def uniform_noise_cp(n_classes, noise_rate):
+    '''
+    Generate a uniform noise corruption probability matrix.
+    Parameters
+    ----------
+    n_classes: int
+        The number of label classes
+    noise_rate: float
+        The noise rate, which is the probability of a label being flipped to another label.
+
+    Returns
+    -------
+    P: np.ndarray
+        Corruption probability matrix, where P[i, j] is the probability of label i being flipped to label j.
+    '''
     P = np.float64(noise_rate) / np.float64(n_classes - 1) * np.ones((n_classes, n_classes))
     np.fill_diagonal(P, (np.float64(1) - np.float64(noise_rate)) * np.ones(n_classes))
     diag_idx = np.arange(n_classes)
@@ -16,6 +30,20 @@ def uniform_noise_cp(n_classes, noise_rate):
 
 
 def pair_noise_cp(n_classes, noise_rate):
+    '''
+    Generate a pairwise noise corruption probability matrix.
+    Parameters
+    ----------
+    n_classes: int
+        The number of label classes
+    noise_rate: float
+        The noise rate, which is the probability of a label being flipped to another label.
+
+    Returns
+    -------
+    P: np.ndarray
+        Corruption probability matrix, where P[i, j] is the probability of label i being flipped to label j.
+    '''
     P = (1.0 - np.float64(noise_rate)) * np.eye(n_classes)
     for i in range(n_classes):
         P[i, i - 1] = np.float64(noise_rate)
@@ -24,6 +52,20 @@ def pair_noise_cp(n_classes, noise_rate):
 
 
 def random_noise_cp(n_classes, noise_rate):
+    '''
+    Generate a random noise corruption probability matrix.
+    Parameters
+    ----------
+    n_classes: int
+        The number of label classes
+    noise_rate: float
+        The noise rate, which is the probability of a label being flipped to another label.
+    Returns
+    -------
+    P: np.ndarray
+        Corruption probability matrix, where P[i, j] is the probability of label i being flipped to label j.
+
+    '''
     P = (1.0 - np.float64(noise_rate)) * np.eye(n_classes)
     for i in range(n_classes):
         tp = np.random.rand(n_classes)
@@ -34,21 +76,49 @@ def random_noise_cp(n_classes, noise_rate):
     return P
 
 
-def label_dropout(masks, dropout_rate, random_seed):
-    new_masks = []
-    for mask in masks:
-        n_labels = len(mask)
-        idx = np.arange(n_labels)
-        # rs = np.random.RandomState(random_seed)
-        # rs.shuffle(idx)
-        idx = idx[0: int((1 - dropout_rate) * n_labels)]
-        idx.sort()
-        new_masks.append(mask[idx])
-
-    return new_masks
+# def label_dropout(masks, dropout_rate):
+#     '''
+#
+#     Parameters
+#     ----------
+#     masks:
+#     dropout_rate
+#
+#     Returns
+#     -------
+#
+#     '''
+#     new_masks = []
+#     for mask in masks:
+#         n_labels = len(mask)
+#         idx = np.arange(n_labels)
+#         # rs = np.random.RandomState(random_seed)
+#         # rs.shuffle(idx)
+#         idx = idx[0: int((1 - dropout_rate) * n_labels)]
+#         idx.sort()
+#         new_masks.append(mask[idx])
+#
+#     return new_masks
 
 
 def add_instance_independent_label_noise(labels, cp, random_seed):
+    '''
+    Add instance-independent label noise to the labels.
+    Parameters
+    ----------
+    labels: np.ndarray
+        Original labels
+    cp: np.ndarray
+        Corruption probability matrix, where cp[i, j] is the probability of label i being flipped to label j.
+    random_seed: int
+        Set random seed
+
+    Returns
+    -------
+    noisy_labels: np.ndarray
+        Processed noisy labels
+
+    '''
     assert_array_almost_equal(cp.sum(axis=1), np.ones(cp.shape[1]))
     n_labels = labels.shape[0]
     noisy_labels = labels.copy()

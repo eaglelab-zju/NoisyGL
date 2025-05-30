@@ -25,6 +25,32 @@ class Dataset:
         Number of data splits.
     path : str
         Path to save dataset files.
+    train_size : int, optional
+        Number of training samples. If not specified, the size is determined by `train_percent`.
+    val_size : int, optional
+        Number of validation samples. If not specified, the size is determined by `val_percent`.
+    test_size : int, optional
+        Number of test samples. If not specified, the size is determined by `test_percent`.
+    train_percent : float, optional
+        Percentage of training samples. If not specified, the size is determined by `train_size`.
+    val_percent : float, optional
+        Percentage of validation samples. If not specified, the size is determined by `val_size`.
+    test_percent : float, optional
+        Percentage of test samples. If not specified, the size is determined by `test_size`.
+    train_examples_per_class : int, optional
+        Number of training examples per class. If not specified, the size is determined by `train_size`.
+    val_examples_per_class : int, optional
+        Number of validation examples per class. If not specified, the size is determined by `val_size`.
+    test_examples_per_class : int, optional
+        Number of test examples per class. If not specified, the size is determined by `test_size`.
+    add_self_loop : bool
+        Whether to add self loops to the adjacency matrix.
+    split_type : str
+        Type of data splitting. Options are 'default', 'percent', or 'samples_per_class'.
+    from_npz : bool
+        Whether to load data from an existing npz file. If True, the dataset is loaded from a preprocessed npz file.
+    device : str
+        Device to load the dataset onto, e.g., 'cuda:0' or 'cpu'.
     '''
 
     def __init__(self, data, feat_norm=False, adj_norm=False, verbose=True, path='./data/',
@@ -77,6 +103,10 @@ class Dataset:
             Whether to normalize the features.
         from_npz : bool
             Whether to load data from an existing npz file.
+
+        Returns
+        -------
+        None
 
         '''
 
@@ -133,11 +163,17 @@ class Dataset:
 
         '''
         Function to conduct data splitting for various datasets.
+        The split is done according to the `split_type` parameter.
+        The results are saved as `self.train_masks, self.val_masks, self.test_masks`.
 
         Parameters
         ----------
         verbose : bool
             Whether to print statistics.
+
+        Returns
+        -------
+        None
         '''
 
         self.train_masks = None
@@ -251,6 +287,22 @@ class Dataset:
 
 
 def pyg_load_dataset(name, path='./data/'):
+    '''
+    Load dataset from PyG datasets.
+
+    Parameters
+    ----------
+    name: str
+        The name of dataset.
+    path: str
+        Path to save dataset files.
+
+    Returns
+    -------
+    dataset: torch_geometric.data.Dataset
+        The loaded dataset.
+
+    '''
     dic = {'cora': 'Cora',
            'citeseer': 'CiteSeer',
            'pubmed': 'PubMed',

@@ -1,9 +1,24 @@
 import numpy as np
-from sklearn.model_selection import StratifiedKFold
-import torch
 
 
 def sample_per_class(labels, num_examples_per_class, forbidden_indices=None):
+    '''
+    Sample a specified number of examples per class from the dataset.
+
+    Parameters
+    ----------
+    labels: np.ndarray
+        Array of labels for the dataset, where each label corresponds to a class index.
+    num_examples_per_class: int
+        Number of samples to select for each class.
+    forbidden_indices: np.ndarray or None
+        Indices that should not be selected for sampling. If None, all indices are considered.
+
+    Returns
+    -------
+    indices: np.ndarray
+        Indices of the sampled examples, concatenated across all classes.
+    '''
     num_samples = len(labels)
     num_classes = labels.max() + 1
     sample_indices_per_class = {index: [] for index in range(num_classes)}
@@ -25,18 +40,32 @@ def get_split(labels, train_examples_per_class=None, val_examples_per_class=None
               train_size=None, val_size=None, test_size=None):
     '''
     Get train, validation, and test indices for a dataset based on the provided labels.
+
     Parameters
     ----------
-    labels
-    train_examples_per_class
-    val_examples_per_class
-    test_examples_per_class
-    train_size
-    val_size
-    test_size
+    labels : np.ndarray
+        Array of labels for the dataset, where each label corresponds to a class index.
+    train_examples_per_class: int or None
+        Number of samples to select for training from each class.
+    val_examples_per_class: int or None
+        Number of samples to select for validation from each class.
+    test_examples_per_class: int or None
+        Number of samples to select for testing from each class.
+    train_size: int or None
+        Total number of samples to select for training, ignoring class distribution.
+    val_size: int or None
+        Total number of samples to select for validation, ignoring class distribution.
+    test_size: int or None
+        Total number of samples to select for testing, ignoring class distribution.
 
     Returns
     -------
+    train_indices : np.ndarray
+        Indices of the training samples.
+    val_indices : np.ndarray
+        Indices of the validation samples.
+    test_indices : np.ndarray
+        Indices of the testing samples.
 
     '''
     num_samples = len(labels)

@@ -80,6 +80,26 @@ def save_conf(path: str = None, method: str = None, dataset: str = None, conf: a
     return None
 
 def get_npz_data(file_name, self_loop):
+    '''
+    Load data from a .npz file and process it to obtain adjacency matrix, features, and labels.
+
+    Parameters
+    ----------
+    file_name: str
+        The path to the .npz file containing the data.
+    self_loop: bool
+        whether to add self-loops to the adjacency matrix.
+
+    Returns
+    -------
+    adj: torch.sparse.FloatTensor
+        The adjacency matrix in sparse format.
+    features: torch.FloatTensor
+        The node features in dense format.
+    labels: np.ndarray
+        The labels for the nodes.
+    '''
+
     adj, features, labels = load_npz(file_name)
     adj = adj + adj.T
     adj = adj.tolil()
@@ -98,6 +118,26 @@ def get_npz_data(file_name, self_loop):
 
 
 def load_npz(file_name, is_sparse=True):
+    '''
+    Load data from a .npz file.
+
+    Parameters
+    ----------
+    file_name: str
+        The path to the .npz file containing the data.
+    is_sparse: bool
+        Whether the adjacency matrix is sparse or dense. If True, the adjacency matrix will be loaded as a sparse matrix.
+
+    Returns
+    -------
+    adj: scipy.sparse.csr_matrix or np.ndarray
+        The adjacency matrix of the graph. If `is_sparse` is True, it will be a sparse matrix; otherwise, it will be a dense matrix.
+    features: scipy.sparse.csr_matrix or np.ndarray
+        The node features of the graph. If the features are not present in the file, it defaults to None.
+    labels: np.ndarray or None
+        The labels of the nodes. If labels are not present in the file, it defaults to None.
+    '''
+
     with np.load(file_name) as loader:
         if is_sparse:
             adj = sp.csr_matrix((loader['adj_data'], loader['adj_indices'],
@@ -122,7 +162,8 @@ def load_npz(file_name, is_sparse=True):
 
 
 def largest_connected_components(adj, n_components=1):
-    """Select k largest connected components.
+    """
+    Select k largest connected components.
 
     Parameters
     ----------
@@ -130,6 +171,11 @@ def largest_connected_components(adj, n_components=1):
         input adjacency matrix
     n_components : int
         n largest connected components we want to select
+    Returns
+    -------
+    nodes_to_keep : list
+        list of indices of nodes to keep in the largest connected components
+
     """
 
     _, component_indices = sp.csgraph.connected_components(adj)
@@ -142,7 +188,18 @@ def largest_connected_components(adj, n_components=1):
 
 
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
-    """Convert a scipy sparse matrix to a torch sparse tensor."""
+    """
+    Convert a scipy sparse matrix to a torch sparse tensor.
+    Parameters
+    ----------
+    sparse_mx : scipy.sparse.csr_matrix
+        The input sparse matrix in CSR format.
+    Returns
+    -------
+    torch.sparse.FloatTensor
+        The converted torch sparse tensor.
+
+    """
     sparse_mx = sparse_mx.tocoo().astype(np.float32)
     indices = torch.from_numpy(
         np.vstack((sparse_mx.row, sparse_mx.col)).astype(np.int64))
@@ -235,6 +292,7 @@ def get_homophily(label, adj, type='node', fill=None):
 def setup_seed(seed):
     '''
     Setup random seed so that the experimental results are reproducible
+
     Parameters
     ----------
     seed : int
@@ -255,6 +313,22 @@ def setup_seed(seed):
 
 
 def get_neighbors(adj, mask):
+    '''
+    This function extracts the unique neighbors of nodes specified by a mask from a sparse adjacency matrix.
+
+    Parameters
+    ----------
+    adj : torch.sparse.FloatTensor
+        The adjacency matrix in sparse format.
+    mask : np.ndarray
+        The mask of nodes to find neighbors for.
+
+    Returns
+    -------
+    neighbors : np.ndarray
+        The unique neighbors of the nodes specified by the mask.
+    '''
+
     edge_index = adj.indices()
     row, col = edge_index[0, :].cpu().numpy(), edge_index[1, :].cpu().numpy()
     col_mask = np.in1d(row, mask)
@@ -264,7 +338,22 @@ def get_neighbors(adj, mask):
 
 
 def heatmap(matrix, title, n_classes):
+    '''
+    Draw a heatmap of the given matrix.
 
+    Parameters
+    ----------
+    matrix : np.ndarray
+        The matrix to visualize.
+    title: str
+        The title of the heatmap.
+    n_classes: int
+        The number of classes in the matrix.
+
+    Returns
+    -------
+    None
+    '''
     fig, ax = plt.subplots()
     im = ax.imshow(matrix)
 
