@@ -81,13 +81,16 @@ Before running your model, you need to register your predictor class in the `tot
 Step 4: Run Your Model
 ----------------------------------
 
-After doing the above steps, you can run your model using the `single_exp.py` script for debugging or the `total_exp.py` script for benchmarking.
+After doing the above steps, you can run your model using the `single_exp.py` script for debugging.
 
 .. code-block:: bash
 
     python single_exp.py --method mygln --dataset cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --seed 3000
 
+Or, if you want to run multiple datasets and noise types, you can use the `total_exp.py` script:
+
 .. code-block:: bash
+
     python total_exp.py --methods mygln --datasets cora citeseer --noise_type uniform --noise_rate 0.1 0.2 --device cuda:0 --seed 3000
 
 This will execute your model on the Cora dataset with a uniform noise type and a noise rate of 0.1, using the specified device and seed.
