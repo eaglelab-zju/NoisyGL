@@ -9,6 +9,7 @@
 ------
 [![Documentation Status](https://readthedocs.org/projects/noisygl/badge/?version=latest)](https://noisygl.readthedocs.io/en/latest/?badge=latest)
 [![license](https://badgen.net/github/license/eaglelab-zju/NoisyGL?color=green)](https://github.com/eaglelab-zju/NoisyGL/blob/main/LICENSE)
+![version](https://img.shields.io/badge/version-0.0.1-blue)
 
 # NoisyGL
 Official code for [NoisyGL: A Comprehensive Benchmark for Graph Neural Networks under Label Noise](https://proceedings.neurips.cc/paper_files/paper/2024/hash/436ffa18e7e17be336fd884f8ebb5748-Abstract-Datasets_and_Benchmarks_Track.html) accepted by NeurIPS 2024. 
@@ -20,7 +21,6 @@ GLN is a family of robust Graph Neural Network (GNN) models, with a particular f
 NoisyGL provides a fair and comprehensive platform to evaluate existing LLN and GLN works and facilitate future GLN research.
 
 ![timeline](img/timeline.png)
-
 
 ## Why NoisyGL ?
 
@@ -81,7 +81,7 @@ if self.conf.training['debug']:
     print("break point")
 ```
 
-### Hyperparameter optimization.
+### Run hyperparameter optimization.
 ``` bash
 python hyperparam_opt.py --method gcn --data cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --max_trial_number 20 --trial_concurrency 4 --port 8081 --update_config True
 ```
