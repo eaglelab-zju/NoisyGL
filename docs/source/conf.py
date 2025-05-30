@@ -32,7 +32,7 @@ copyright = "2025, Zhonghao Wang, Danyu Sun, Sheng Zhou"
 author = "Zhonghao Wang, Danyu Sun, Sheng Zhou"
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
