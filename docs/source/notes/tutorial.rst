@@ -85,5 +85,15 @@ After doing the above steps, you can run your model using the `single_exp.py` sc
 
 .. code-block:: bash
 
-    python single_exp.py --method mygln --data cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --seed 3000
+    python single_exp.py --method mygln --dataset cora --noise_type uniform --noise_rate 0.1 --device cuda:0 --seed 3000
+
+.. code-block:: bash
+    python total_exp.py --methods mygln --datasets cora citeseer --noise_type uniform --noise_rate 0.1 0.2 --device cuda:0 --seed 3000
+
+This will execute your model on the Cora dataset with a uniform noise type and a noise rate of 0.1, using the specified device and seed.
+You can also customize the command line arguments to suit your needs, such as changing the dataset, noise type, or device.
+
+Step 5: Analyze Results
+----------------------------------
+After running your model, you can analyze the results in the `log` directory.
 
